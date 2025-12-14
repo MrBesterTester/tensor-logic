@@ -1,0 +1,25 @@
+{
+  "name": "tensor-logic-demo",
+  "version": "1.0.0",
+  "description": "Educational demo of Pedro Domingos' Tensor Logic - unifying neural and symbolic AI",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "mathjs": "^13.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3",
+    "eslint": "^9.16.0",
+    "@eslint/js": "^9.16.0",
+    "typescript-eslint": "^8.18.0"
+  }
+}
+
