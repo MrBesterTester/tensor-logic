@@ -146,6 +146,10 @@ tensor-logic/
 - Domingos, P. (2025). *Tensor Logic: The Language of AI*. [arXiv:2510.12269](https://arxiv.org/abs/2510.12269)
 - [Tensor Logic website](https://tensor-logic.org)
 
+## TO DO
+
+- [ ] Validate these models against known ML examples from reputable sources (e.g., textbook examples, benchmark datasets, reference implementations)
+
 ## License
 
 MIT
