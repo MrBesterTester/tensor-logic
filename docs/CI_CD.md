@@ -9,6 +9,7 @@
   - [Step 1: Create Workflow File](#step-1-create-workflow-file)
   - [Step 2: Configure GitHub Secrets (if needed)](#step-2-configure-github-secrets-if-needed)
   - [Step 3: Create GitHub Repository (if needed)](#step-3-create-github-repository-if-needed)
+  - [Step 3.5: Set Up SSH Authentication (Optional but Recommended)](#step-35-set-up-ssh-authentication-optional-but-recommended)
   - [Step 4: Push and Test](#step-4-push-and-test)
 - [Deployment to Shuttle](#deployment-to-shuttle)
   - [Prerequisites](#prerequisites)
@@ -213,13 +214,69 @@ If you haven't created a GitHub repository for this project yet:
    - Click **Create repository**
 
 3. **Connect your local repo to GitHub:**
+
+   **Option A: Using HTTPS (requires credentials each time):**
    ```bash
    git remote add origin https://github.com/MrBesterTester/tensor-logic.git
-   # Or if using SSH:
-   # git remote add origin git@github.com:MrBesterTester/tensor-logic.git
+   ```
+
+   **Option B: Using SSH (recommended, works with 1Password):**
+   ```bash
+   git remote add origin git@github.com:MrBesterTester/tensor-logic.git
    ```
 
 **Note:** If the repository already exists and is connected, skip this step.
+
+### Step 3.5: Set Up SSH Authentication (Optional but Recommended)
+
+Using SSH with 1Password eliminates credential prompts and provides seamless authentication:
+
+1. **Generate SSH Key in 1Password:**
+   - Open 1Password desktop app
+   - Click "New Item" → Select "SSH Key"
+   - Click "Add Private Key" → "Generate a New Key"
+   - Choose **Ed25519** (recommended) or RSA
+   - Title it: "GitHub - tensor-logic" (or similar)
+   - Click "Generate" then "Save"
+
+2. **Copy the Public Key:**
+   - In 1Password, open the SSH Key item you created
+   - Click the "Public Key" field to copy it to your clipboard
+
+3. **Add Public Key to GitHub:**
+   - Go to: https://github.com/settings/keys
+   - Click "New SSH key"
+   - **Title:** "MacBook Pro - 1Password" (or similar descriptive name)
+   - **Key type:** Authentication Key
+   - **Key:** Paste the public key from 1Password
+   - Click "Add SSH key"
+
+4. **Enable 1Password SSH Agent:**
+   - In 1Password: **Preferences** → **Developer**
+   - Check "Use 1Password as SSH Agent"
+   - Follow any additional setup instructions shown
+
+5. **Test SSH Connection:**
+   ```bash
+   ssh -T git@github.com
+   ```
+   You should see: `Hi MrBesterTester! You've successfully authenticated, but GitHub does not provide shell access.`
+
+6. **Switch Git Remote to SSH (if you used HTTPS initially):**
+   ```bash
+   git remote set-url origin git@github.com:MrBesterTester/tensor-logic.git
+   ```
+
+**Benefits of SSH:**
+- ✅ No credential prompts (handled by 1Password)
+- ✅ More secure (key-based authentication)
+- ✅ Works seamlessly with 1Password SSH Agent
+- ✅ No need to manage tokens or passwords
+
+**Alternative:** If you prefer to use your existing SSH keys instead of generating new ones in 1Password:
+- Copy your existing public key: `cat ~/.ssh/id_ed25519.pub`
+- Add it to GitHub (same steps as above)
+- Import the private key into 1Password if you want 1Password to manage it
 
 ### Step 4: Push and Test
 
