@@ -57,7 +57,9 @@ lerna-debug.log*
 *.private
 
 # IDE and editor files
-.vscode/
+# Allow .vscode/settings.json (workspace settings benefit the team)
+.vscode/*
+!.vscode/settings.json
 .idea/
 *.swp
 *.swo
