@@ -209,6 +209,8 @@ a:hover {
   padding: var(--space-lg);
   border-top: var(--border-subtle);
   text-align: center;
+  flex-shrink: 0; /* Prevent footer from being compressed */
+  margin-top: auto; /* Push footer to bottom */
 }
 
 .sidebar-footer p {
@@ -232,6 +234,16 @@ a:hover {
 
 .sidebar-footer .author-affiliation {
   font-size: 0.75rem;
+}
+
+.sidebar-footer .build-version {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid rgba(139, 148, 158, 0.1);
+  opacity: 0.8;
 }
 
 /* Main Content */
