@@ -8,7 +8,8 @@
   - [Step 0: Get GitHub Personal Access Token (Optional)](#step-0-get-github-personal-access-token-optional)
   - [Step 1: Create Workflow File](#step-1-create-workflow-file)
   - [Step 2: Configure GitHub Secrets (if needed)](#step-2-configure-github-secrets-if-needed)
-  - [Step 3: Push and Test](#step-3-push-and-test)
+  - [Step 3: Create GitHub Repository (if needed)](#step-3-create-github-repository-if-needed)
+  - [Step 4: Push and Test](#step-4-push-and-test)
 - [Deployment to Shuttle](#deployment-to-shuttle)
   - [Prerequisites](#prerequisites)
   - [Initial Setup](#initial-setup)
@@ -196,28 +197,46 @@ If you add features that require secrets later:
 3. Add secrets as needed
 4. Reference in workflow: `${{ secrets.SECRET_NAME }}`
 
-### Step 3: Push and Test
+### Step 3: Create GitHub Repository (if needed)
 
-1. **Create the workflow file locally:**
+If you haven't created a GitHub repository for this project yet:
+
+1. **Go to GitHub.com:**
+   - Log in to your GitHub account
+   - Click the "+" icon (top right) → **New repository**
+
+2. **Create the repository:**
+   - **Repository name:** `tensor-logic`
+   - **Description:** (optional) "Educational demo of Tensor Logic - unifying neural and symbolic AI"
+   - **Visibility:** Choose Public or Private
+   - **DO NOT** initialize with README, .gitignore, or license (we already have these)
+   - Click **Create repository**
+
+3. **Connect your local repo to GitHub:**
    ```bash
-   mkdir -p .github/workflows
-   # Create .github/workflows/ci.yml with content above
+   git remote add origin https://github.com/MrBesterTester/tensor-logic.git
+   # Or if using SSH:
+   # git remote add origin git@github.com:MrBesterTester/tensor-logic.git
    ```
 
-2. **Commit and push:**
+**Note:** If the repository already exists and is connected, skip this step.
+
+### Step 4: Push and Test
+
+1. **Commit and push:**
    ```bash
    git add .github/
    git commit -m "Add GitHub Actions CI workflow"
    git push origin main
    ```
 
-3. **Watch it run:**
-   - Go to: `https://github.com/MrBesterTester/tensor-logic/actions`
-   - You should see a workflow run start automatically
-   - Click on it to watch live logs
+2. **Watch it run:**
+   - Go to GitHub.com in your browser: `https://github.com/MrBesterTester/tensor-logic/actions`
+   - You should see a workflow run start automatically (appears within seconds of pushing)
+   - Click on the workflow run to watch live logs
    - Should complete in ~2-3 minutes
 
-4. **Verify:**
+3. **Verify:**
    - Green ✅ checkmark appears on your commit
    - All steps should pass
 
