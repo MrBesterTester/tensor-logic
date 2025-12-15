@@ -258,6 +258,11 @@ The prompt above resulted in:
 > - I'd like to be able to simply say "commit locally" in the chat and have you execute `git add -A && git commit` with an appropriate commit message
 > - This should be a conversational command - when I type "commit locally", you should recognize it and perform the local commit operation
 >
+> **Markdown Formatting Issue:**
+> - Section headers using hyphens (` - `) instead of colons (`:`) can cause problems with markdown anchor generation and TOC links
+> - Update all section headers to use colons (e.g., `## Section: with description` not `## Section - with description`)
+> - **Important:** This formatting convention should be maintained by the user for all future sections. Hyphenation in header lines cannot be fixed automatically by the TOC generator.
+>
 > **Additional Considerations:**
 > - Check Cursor's local settings files first before searching the web for Cursor-specific features
 > - Understand that as an AI running inside Cursor, you should have direct knowledge of Cursor's capabilities
@@ -286,3 +291,4 @@ The prompt above resulted in:
    - **Cursor Settings:** Check local configuration files (`~/.cursor/User/settings.json`, `.vscode/settings.json`) before searching web
    - **AI Capabilities:** As AI running in Cursor, should prioritize local file inspection over web searches for Cursor-specific features
    - **Conversational Commands:** Simple phrases like "commit locally" can be recognized and executed without needing custom `@` commands or aliases
+   - **Markdown Section Headers:** Use colons (`:`) instead of hyphens (` - `) in section headers (e.g., `## Section: with description` not `## Section - with description`). This avoids issues with markdown anchor generation and TOC links. **Important:** This formatting convention should be maintained by the user for all future sections. Hyphenation in header lines cannot be fixed automatically by the TOC generator.
