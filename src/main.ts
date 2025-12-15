@@ -337,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Display build version
   const buildVersionEl = document.getElementById('build-version');
   if (buildVersionEl) {
-    // @ts-ignore - __BUILD_TIME__ is injected by Vite
+    // @ts-expect-error - __BUILD_TIME__ is injected by Vite
     const buildTime = typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : 'unknown';
     buildVersionEl.textContent = buildTime;
   }
