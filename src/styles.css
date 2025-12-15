@@ -236,7 +236,7 @@ a:hover {
   font-size: 0.75rem;
 }
 
-.sidebar-footer .build-version {
+.sidebar-footer .build-version-line {
   font-family: var(--font-mono);
   font-size: 0.7rem;
   color: var(--text-muted);
@@ -244,6 +244,29 @@ a:hover {
   padding-top: var(--space-md);
   border-top: 1px solid rgba(139, 148, 158, 0.1);
   opacity: 0.8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.sidebar-footer .build-version-line #build-version {
+  flex-shrink: 0;
+}
+
+.sidebar-footer .build-email-link {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  color: var(--accent-primary);
+  text-decoration: none;
+  opacity: 0.9;
+  transition: opacity var(--transition-fast);
+}
+
+.sidebar-footer .build-email-link:hover {
+  opacity: 1;
+  text-decoration: underline;
 }
 
 /* Main Content */
