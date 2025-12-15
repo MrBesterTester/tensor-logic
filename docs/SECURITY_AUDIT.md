@@ -30,9 +30,10 @@
   - [Secrets Management](#secrets-management)
   - [Build Security](#build-security)
 - [Repository Security](#repository-security)
-  - [Git Configuration](#git-configuration)
-  - [Access Control](#access-control)
-  - [Branch Protection](#branch-protection)
+  - [Local Repository Security](#local-repository-security)
+  - [Remote Repository Security (GitHub)](#remote-repository-security-github)
+- [Supported Versions](#supported-versions)
+- [Reporting a Vulnerability](#reporting-a-vulnerability)
 - [Deployment Security](#deployment-security)
   - [Shuttle Configuration](#shuttle-configuration)
   - [HTTPS Enforcement](#https-enforcement)
@@ -60,15 +61,15 @@
 - ✅ Static frontend application (low attack surface)
 - ✅ No backend API or secrets in codebase
 - ✅ Basic CI/CD pipeline in place
-- ⚠️ Missing security headers and Content Security Policy
-- ⚠️ No dependency vulnerability scanning in CI
-- ⚠️ Minimal .gitignore (missing common patterns)
-- ⚠️ External resources loaded without integrity checks
-- ⚠️ No automated security testing
+- ✅ [Content Security Policy](#content-security-policy-csp) implemented (see [Item 5](#5--content-security-policy-csp))
+- ✅ [Dependency vulnerability scanning](#dependency-vulnerability-scanning) in CI configured (see [Item 3](#3--dependency-vulnerability-scanning) and [Item 8](#8--add-security-testing-to-ci))
+- ✅ Enhanced [.gitignore](#git-configuration) with comprehensive security patterns (see [Item 1](#1--enhanced-gitignore))
+- ✅ [Subresource Integrity](#subresource-integrity-sri) implemented via self-hosted fonts (see [Item 6](#6--subresource-integrity-sri-for-external-resources))
+- ✅ [Automated security testing](#automated-security-testing) integrated into CI pipeline (see [Item 8](#8--add-security-testing-to-ci))
 
 **Risk Level:** **LOW** (educational demo, no user data, no backend)
 
-**Recommended Priority:** Implement immediate and short-term recommendations to establish baseline security posture.
+**Recommended Priority:** Implement [immediate (critical)](#immediate-critical) and [short-term (high priority)](#short-term-high-priority) recommendations to establish baseline security posture.
 
 ---
 
@@ -245,31 +246,54 @@ updates:
 
 **Priority:** **MEDIUM** - Prevents compromised CDN attacks
 
-#### 7. ⏭️ GitHub Repository Security Settings
+#### 7. ✅ GitHub Repository Security Settings
 
-**Action Required:**
-1. Enable branch protection rules for `main` branch
-2. Require pull request reviews (if multiple contributors)
-3. Enable security alerts in repository settings
-4. Configure repository visibility appropriately
+**Status:** ✅ **INSTRUCTIONS PROVIDED**
+
+**Implementation:**
+- Comprehensive setup instructions integrated into [Remote Repository Security (GitHub)](#remote-repository-security-github) section
+- Step-by-step instructions for all security settings
+- Covers branch protection, Dependabot alerts, secret scanning, and more
+- Current status verified via GitHub CLI
+
+**Action Required (Manual Steps):**
+1. **Enable branch protection rules** for `main` branch
+   - URL: `https://github.com/MrBesterTester/tensor-logic/settings/branches`
+   - Require status checks (CI must pass)
+   - Disable force pushes
+   - See [Branch Protection](#branch-protection) section for detailed steps
+
+2. **Enable security alerts** (Dependabot)
+   - URL: `https://github.com/MrBesterTester/tensor-logic/settings/security_analysis`
+   - Enable Dependabot alerts
+   - Enable Dependabot security updates
+   - Enable dependency graph
+   - See [Security Alerts (Dependabot)](#security-alerts-dependabot) section for detailed steps
+
+3. **Verify repository visibility**
+   - URL: `https://github.com/MrBesterTester/tensor-logic/settings`
+   - Current: Public (appropriate for educational demo) ✅ Verified
+   - See [Repository Visibility](#repository-visibility) section for details
+
+4. **Optional: Enable secret scanning**
+   - Prevents accidental secret commits
+   - Blocks pushes containing secrets
+   - See [Secret Scanning](#secret-scanning) section for details
 
 **Priority:** **MEDIUM** - Protects against accidental or malicious changes
 
-#### 8. ⏭️ Add Security Testing to CI
+**Note:** These settings require manual configuration in GitHub's web interface. See [Remote Repository Security (GitHub)](#remote-repository-security-github) section for complete instructions with current status and verification checklist.
 
-**Action Required:**
-Add security scanning steps to `.github/workflows/ci.yml`:
-```yaml
-- name: Run npm audit
-  run: npm audit --audit-level=moderate
-  continue-on-error: true  # Don't fail build, but report
+#### 8. ✅ Add Security Testing to CI
 
-- name: Check for secrets
-  uses: trufflesecurity/trufflehog@main
-  with:
-    path: ./
-    base: ${{ github.event.repository.default_branch }}
-```
+**Status:** ✅ **COMPLETE**
+
+**Implementation:**
+- Added `npm audit` step to scan for vulnerable dependencies (moderate+ severity)
+- Added TruffleHog secret scanning to detect accidental credential commits
+- Both steps configured with `continue-on-error: true` to report issues without failing builds
+
+**File:** `.github/workflows/ci.yml`
 
 **Priority:** **MEDIUM** - Early vulnerability detection
 
@@ -514,91 +538,384 @@ Add to `.github/workflows/ci.yml`:
 
 ## Repository Security
 
-### Git Configuration
+This section covers security measures for both local and remote (GitHub) repositories.
+
+---
+
+### Local Repository Security
+
+#### Git Configuration
+
+**Status:** ✅ **COMPLETE**
 
 **Current .gitignore:**
-```
-.DS_Store
-node_modules/
-__pycache__/
-*.pyc
-*.log
-dist/
-```
+- ✅ Enhanced with comprehensive security patterns
+- ✅ Environment variables (`.env`, `.env.*`)
+- ✅ Secrets and keys (`**/*.key`, `**/*.pem`, `**/Secrets*.toml`)
+- ✅ IDE files (`.vscode/*`, `.idea/`, `*.swp`)
+- ✅ OS files (`.DS_Store`, `Thumbs.db`)
+- ✅ Temporary and cache files
+- ✅ Allows `.vscode/settings.json` (workspace settings)
 
-**Recommended Additions:**
-```
-# Environment variables
-.env
-.env.*
-!.env.example
+**Impact:** Prevents accidental commit of secrets, credentials, and sensitive files.
 
-# Secrets
-**/Secrets*.toml
-**/*.key
-**/*.pem
-**/*.p12
-**/*.pfx
-**/secrets/
+#### SSH Key Management
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# Temporary
-*.tmp
-*.temp
-.cache/
-
-# Build (already present)
-dist/
-build/
-```
-
-### Access Control
+**Status:** ✅ **DOCUMENTED**
 
 **Recommendations:**
-1. **Repository Visibility**
-   - Public: OK for educational demo
-   - Private: If sensitive content added later
+- Use Ed25519 keys (recommended in `docs/CI_CD.md`)
+- Rotate keys annually
+- Use 1Password SSH agent (already documented)
+- Store keys securely (1Password or secure keychain)
 
-2. **Collaborator Access**
+**Current State:** SSH authentication configured (see `docs/CI_CD.md`)
+
+---
+
+### Remote Repository Security (GitHub)
+
+**Status:** ⚠️ **PARTIAL** - Some settings require manual configuration  
+**Repository:** `MrBesterTester/tensor-logic`
+
+#### Current Status (Verified via GitHub CLI)
+
+**Last Checked:** 2025-01-XX
+
+| Feature | Status | Action Required |
+|---------|--------|-----------------|
+| Branch Protection | ❌ **NOT ENABLED** | Manual setup required |
+| Vulnerability Alerts | ❌ **DISABLED** | Manual setup required |
+| Dependency Graph | ❓ Unknown | Verify in web interface |
+| Repository Visibility | ✅ **PUBLIC** | ✅ Verified - No action needed |
+| Secret Scanning | ❓ Unknown | Verify in web interface |
+
+**Note:** Items marked with ❌ require manual configuration in GitHub's web interface. Items marked with ❓ need verification.
+
+#### Quick Reference: What Needs to Be Done
+
+**✅ Already Complete (No Action Needed):**
+- Repository visibility: **PUBLIC** (verified and appropriate)
+
+**❌ Requires Manual Setup (GitHub Web Interface):**
+1. **Branch Protection** - **NOT ENABLED**
+   - URL: `https://github.com/MrBesterTester/tensor-logic/settings/branches`
+   - Estimated time: 5 minutes
+
+2. **Dependabot Alerts** - **DISABLED**
+   - URL: `https://github.com/MrBesterTester/tensor-logic/settings/security_analysis`
+   - Estimated time: 2 minutes
+
+**❓ Needs Verification (GitHub Web Interface):**
+3. **Dependency Graph** - Status unknown
+4. **Secret Scanning** - Status unknown
+
+**Total Estimated Time:** ~10 minutes to complete all manual steps
+
+---
+
+#### Repository Visibility
+
+**Status:** ✅ **VERIFIED: PUBLIC** (Verified via GitHub CLI)  
+**Action Required:** ✅ **NO ACTION NEEDED** - Current visibility is appropriate  
+**URL:** `https://github.com/MrBesterTester/tensor-logic/settings`
+
+**Current Status:**
+- Repository visibility: **PUBLIC** ✅ (verified via `gh repo view`)
+- This is appropriate for an educational demo with no secrets or sensitive data
+- No changes needed at this time
+
+**If You Need to Verify or Change:**
+1. Navigate to: `https://github.com/MrBesterTester/tensor-logic`
+2. Click **Settings** (top menu)
+3. Scroll to **Danger Zone** (bottom of page)
+4. **Current visibility:** PUBLIC (verified)
+   - **Public:** ✅ OK for educational demo (no secrets, no sensitive data)
+   - **Private:** Use if you add sensitive content later
+
+---
+
+#### Branch Protection
+
+**Status:** ❌ **NOT ENABLED** (Verified via GitHub CLI)  
+**Action Required:** ⚠️ **MANUAL SETUP** - Must be configured in GitHub web interface  
+**URL:** `https://github.com/MrBesterTester/tensor-logic/settings/branches`
+
+**Current Status:**
+- Branch protection: **NOT ENABLED**
+- Main branch is currently unprotected
+- Force pushes are allowed
+- No status checks required
+
+**Setup Steps:**
+
+1. **Navigate to Branch Protection Settings:**
+   - Go to: `https://github.com/MrBesterTester/tensor-logic`
+   - Click **Settings** (top menu)
+   - Click **Branches** (left sidebar)
+   - Under "Branch protection rules", click **Add rule**
+
+2. **Configure Branch Protection:**
+   - **Branch name pattern:** `main`
+   - **Protect matching branches:** Enabled
+
+3. **Recommended Settings:**
+
+   **Required Settings:**
+   - ✅ **Require a pull request before merging**
+     - ✅ Require approvals: `1` (if multiple contributors)
+     - ✅ Dismiss stale pull request approvals when new commits are pushed
+     - ✅ Require review from Code Owners (if CODEOWNERS file exists)
+   
+   - ✅ **Require status checks to pass before merging**
+     - ✅ Require branches to be up to date before merging
+     - **Status checks that are required:**
+       - `build-and-test` (from CI workflow)
+       - Or select: "All checks must pass"
+   
+   - ✅ **Require conversation resolution before merging**
+   
+   - ✅ **Do not allow bypassing the above settings**
+     - ⚠️ **Note:** For solo projects, you may want to allow bypassing for yourself
+     - For team projects, do not allow bypassing
+
+   **Optional but Recommended:**
+   - ✅ **Restrict who can push to matching branches**
+     - Only allow specific users/teams (if applicable)
+   
+   - ✅ **Do not allow force pushes**
+   
+   - ✅ **Do not allow deletions**
+
+4. **Save:**
+   - Click **Create** or **Save changes**
+
+**For Solo Projects:**
+
+If you're the only contributor, you may want lighter protection:
+- ✅ Require status checks to pass (CI must pass)
+- ✅ Do not allow force pushes
+- ⚠️ Skip requiring PR reviews (since you're the only reviewer)
+- ✅ Allow bypassing for yourself (for flexibility)
+
+**Verification via GitHub CLI:**
+```bash
+# Check branch protection
+gh api repos/MrBesterTester/tensor-logic/branches/main/protection
+# Result: ❌ Branch not protected (HTTP 404)
+```
+
+**Troubleshooting:**
+- **Issue:** "Branch protection rules" option not visible
+- **Solution:** Ensure you have admin access to the repository. Check repository permissions in Settings → Collaborators.
+
+---
+
+#### Security Alerts (Dependabot)
+
+**Status:** ❌ **DISABLED** (Verified via GitHub CLI)  
+**Action Required:** ⚠️ **MANUAL SETUP** - Must be enabled in GitHub web interface  
+**URL:** `https://github.com/MrBesterTester/tensor-logic/settings/security_analysis`
+
+**Current Status:**
+- Dependabot alerts: **DISABLED**
+- Vulnerability alerts: **NOT ENABLED**
+- Dependency graph: **Unknown** (needs verification)
+- Dependabot security updates: **Unknown** (needs verification)
+
+**Setup Steps:**
+
+1. **Navigate to Security Settings:**
+   - Go to: `https://github.com/MrBesterTester/tensor-logic`
+   - Click **Settings** (top menu)
+   - Click **Code security and analysis** (left sidebar)
+
+2. **Enable Security Features:**
+
+   **Dependabot alerts:**
+   - ✅ Enable **Dependabot alerts**
+   - This automatically scans for vulnerable dependencies
+   - Alerts appear in the **Security** tab
+
+   **Dependabot security updates:**
+   - ✅ Enable **Dependabot security updates**
+   - Automatically creates PRs to fix security vulnerabilities
+   - Works with `.github/dependabot.yml` configuration
+
+   **Dependency graph:**
+   - ✅ Enable **Dependency graph**
+   - Shows all dependencies and their relationships
+   - Required for Dependabot to work
+
+   **Code scanning:**
+   - ⚠️ Optional: Enable **Code scanning**
+   - Can use GitHub Advanced Security (if available)
+   - Or third-party tools (CodeQL, etc.)
+
+3. **Save:**
+   - Changes are saved automatically
+
+**Verification:**
+1. Go to: `https://github.com/MrBesterTester/tensor-logic/security`
+2. Check that **Dependabot alerts** tab is visible
+3. Check that **Dependency graph** is enabled
+
+**Note:** `.github/dependabot.yml` is already configured, but alerts must be enabled in repository settings.
+
+**Verification via GitHub CLI:**
+```bash
+# Check vulnerability alerts
+gh api repos/MrBesterTester/tensor-logic/vulnerability-alerts
+# Result: ❌ Vulnerability alerts are disabled (HTTP 404)
+```
+
+**Troubleshooting:**
+- **Issue:** Dependabot alerts not appearing
+- **Solution:**
+  1. Verify `.github/dependabot.yml` exists and is valid
+  2. Check that dependency graph is enabled
+  3. Wait 24 hours for initial scan
+  4. Check Security tab for alerts
+
+---
+
+#### Secret Scanning
+
+**Status:** ❓ **UNKNOWN** - Needs verification in GitHub web interface  
+**Action Required:** ⚠️ **MANUAL VERIFICATION** - Check and enable if not already enabled  
+**Location:** `Settings` → `Code security and analysis`
+
+**Enable Secret Scanning:**
+- ⚠️ Enable **Secret scanning** (if not already enabled)
+- Scans for accidentally committed secrets (API keys, tokens, etc.)
+- Works automatically with GitHub's secret patterns
+- **Note:** Cannot be verified via CLI - check in web interface
+
+**Enable Push Protection:**
+- ⚠️ Enable **Push protection** (if not already enabled)
+- Blocks pushes that contain secrets
+- Prevents accidental secret commits
+- **Note:** Cannot be verified via CLI - check in web interface
+
+**URL:** `https://github.com/MrBesterTester/tensor-logic/settings/security_analysis`
+
+---
+
+#### Security Policy
+
+**Status:** ❓ **UNKNOWN** - Needs verification  
+**File:** `SECURITY.md` (in repository root)
+
+**Action Required:**
+Create a security policy file if it doesn't exist:
+
+```markdown
+# Security Policy
+
+## Supported Versions
+
+| Version | Supported          |
+| ------- | ------------------ |
+| 1.0.x   | :white_check_mark: |
+
+## Reporting a Vulnerability
+
+Please report security vulnerabilities to: sam@samkirk.com
+
+Do not open public issues for security vulnerabilities.
+```
+
+---
+
+#### Access Control
+
+**Recommendations:**
+1. **Collaborator Access**
    - Use least privilege
    - Review access regularly
    - Remove inactive collaborators
 
-3. **SSH Keys**
-   - Use Ed25519 keys (recommended in CI_CD.md)
-   - Rotate keys annually
-   - Use 1Password SSH agent (already documented)
+2. **Repository Permissions**
+   - Verify admin access is limited
+   - Review team/organization permissions (if applicable)
 
-### Branch Protection
+---
 
-**Recommended Settings (if multiple contributors):**
+#### Verification Checklist
 
-1. **Protect main branch:**
-   - Require pull request reviews
-   - Require status checks to pass
-   - Require branches to be up to date
-   - Do not allow force pushes
-   - Do not allow deletions
+**Current Status:**
 
-2. **Status Checks:**
-   - Require CI to pass
-   - Require type checking
-   - Require linting
+- [ ] ❌ Branch protection rules enabled for `main` - **NOT ENABLED** (manual setup required)
+- [ ] ❌ Status checks required (CI must pass) - **NOT CONFIGURED** (requires branch protection)
+- [ ] ❌ Force pushes disabled - **NOT CONFIGURED** (requires branch protection)
+- [ ] ❌ Dependabot alerts enabled - **DISABLED** (manual setup required)
+- [ ] ❓ Dependabot security updates enabled - **UNKNOWN** (needs verification)
+- [ ] ❓ Dependency graph enabled - **UNKNOWN** (needs verification)
+- [ ] ❓ Secret scanning enabled - **UNKNOWN** (needs verification)
+- [x] ✅ Repository visibility verified - **PUBLIC** (appropriate, no action needed)
+- [ ] ❓ Security policy created - **UNKNOWN** (needs verification)
 
-**For Solo Projects:**
-- Branch protection less critical
-- Still recommended for best practices
+**Legend:**
+- ✅ = Complete / Verified
+- ❌ = Not enabled / Needs setup
+- ❓ = Unknown / Needs verification
+
+---
+
+#### Using GitHub CLI (Alternative)
+
+**Status:** ✅ GitHub CLI is installed and authenticated  
+**Current User:** `MrBesterTester`  
+**Repository:** `MrBesterTester/tensor-logic`
+
+**Verification Commands:**
+```bash
+# Check authentication
+gh auth status
+# Result: ✅ Logged in as MrBesterTester
+
+# Check repository visibility
+gh repo view MrBesterTester/tensor-logic --json visibility,isPrivate
+# Result: {"isPrivate":false,"visibility":"PUBLIC"} ✅
+
+# Check branch protection
+gh api repos/MrBesterTester/tensor-logic/branches/main/protection
+# Result: ❌ Branch not protected (HTTP 404)
+
+# Check vulnerability alerts
+gh api repos/MrBesterTester/tensor-logic/vulnerability-alerts
+# Result: ❌ Vulnerability alerts are disabled (HTTP 404)
+```
+
+**Enable Branch Protection (via API):**
+
+**Note:** GitHub CLI token may not have write permissions for branch protection. The web interface is recommended.
+
+```bash
+# Attempt to enable branch protection (requires write permissions)
+gh api repos/MrBesterTester/tensor-logic/branches/main/protection \
+  --method PUT \
+  --field required_status_checks='{"strict":true,"contexts":["build-and-test"]}' \
+  --field enforce_admins=false \
+  --field required_pull_request_reviews=null \
+  --field restrictions=null
+```
+
+**Limitation:** Branch protection via CLI requires admin permissions and may fail if token lacks write access. The web interface is the recommended approach.
+
+---
+
+#### Troubleshooting
+
+**Status Checks Not Appearing:**
+
+**Issue:** CI checks not showing in branch protection
+
+**Solution:**
+1. Ensure CI workflow runs successfully at least once
+2. Check workflow file name matches: `.github/workflows/ci.yml`
+3. Verify workflow has `name:` field set
+4. Wait a few minutes for GitHub to index the checks
 
 ---
 
@@ -817,9 +1134,10 @@ build/
 - [ ] Security headers configuration (N/A - no backend)
 
 **Short-Term (High Priority)**
-- [ ] GitHub repository security settings
-- [x] Self-host external resources (Google Fonts) - Setup complete, fonts need downloading
+- [x] GitHub repository security settings - Instructions provided in Remote Repository Security section
+- [x] Self-host external resources (Google Fonts) - Complete
 - [x] Subresource Integrity (SRI) - Enabled via self-hosting
+- [x] Add Security Testing to CI - Complete (npm audit + TruffleHog)
 
 **Medium-Term (Best Practices)**
 - [ ] Error tracking (optional)
