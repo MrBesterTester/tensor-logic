@@ -20,6 +20,8 @@
 - [Deploy: with Auto mode in Cursor](#deploy-with-auto-mode-in-cursor)
   - [Deploy Consolidated Prompt](#deploy-consolidated-prompt)
   - [Deploy Summary of Generated Features](#deploy-summary-of-generated-features)
+  - [Custom Domain Setup Prompt](#custom-domain-setup-prompt)
+  - [Custom Domain Setup Summary of Generated Features](#custom-domain-setup-summary-of-generated-features)
 
 <!-- /TOC -->
 This document consolidates the prompts used to generate the Tensor Logic educational web application.
@@ -612,3 +614,92 @@ The prompt above resulted in:
     - Shuttle deploy action packages files and deploys to Shuttle
     - Website updates live within 2-3 minutes
     - No manual intervention required
+
+---
+
+### Custom Domain Setup Prompt
+
+> Set up a custom domain for the Shuttle-hosted Tensor Logic application, configuring `tensor-logic.samkirk.com` to point to the Shuttle deployment instead of using the default `tensor-logic-noo5.shuttle.app` URL.
+>
+> **DNS Configuration:**
+> - Add CNAME record in Microsoft 365 Admin Center using the assisted path feature
+> - Configure `tensor-logic.samkirk.com` to point to `tensor-logic-noo5.shuttle.app`
+> - Verify DNS is hosted by Microsoft 365 (not Azure DNS) by checking nameservers
+> - Document the Microsoft 365 Admin Center assisted path process
+>
+> **Automation Scripts:**
+> - Create `scripts/check-dns-propagation.ts` to monitor DNS propagation automatically
+> - Create `scripts/verify-domain-setup.ts` to verify complete domain configuration
+> - Scripts should check: DNS resolution, CNAME records, HTTP/HTTPS access, SSL certificates
+> - Use secure command execution (spawnSync with array arguments) to prevent command injection
+> - Fix security vulnerabilities: replace execSync with spawnSync, validate domain inputs
+> - Fix ES module compatibility issues (remove CommonJS `require.main === module` patterns)
+> - Fix HTTP status code parsing (extract from last line of curl output)
+> - Fix warning handling (warnings should not cause script to fail)
+>
+> **SSL Certificate Setup:**
+> - Add SSL certificate using `shuttle certificate add tensor-logic.samkirk.com`
+> - Verify certificate is valid and shows expiration date
+> - Confirm automatic renewal is configured
+>
+> **Documentation Updates:**
+> - Update `docs/CI_CD.md` with custom domain setup instructions
+> - Remove Azure DNS references (not applicable for Microsoft 365 DNS hosting)
+> - Update Microsoft 365 Admin Center section with assisted path instructions
+> - Remove parenthetical comments from section titles
+> - Add clarification about warning behavior in verification scripts
+> - Update cost section to reflect $0/month total cost
+> - Document that chatbot can automate Steps 3-5 (DNS monitoring, SSL setup, verification)
+> - Consolidate script documentation into CI_CD.md and remove scripts/README.md
+
+### Custom Domain Setup Summary of Generated Features
+
+The prompt above resulted in:
+
+1. **DNS Configuration Scripts** (`scripts/check-dns-propagation.ts`, `scripts/verify-domain-setup.ts`)
+   - DNS propagation monitoring with polling (5-minute intervals, 4-hour timeout)
+   - Comprehensive domain verification (DNS resolution, CNAME, HTTP/HTTPS, SSL certificate)
+   - Secure command execution using `spawnSync` with array arguments
+   - Domain input validation (regex pattern matching)
+   - ES module compatibility (direct `main()` calls)
+   - Proper HTTP status code parsing from curl output
+   - Warning status handling (warnings don't cause script failure)
+
+2. **Security Fixes**
+   - **Command Injection Prevention:** Replaced `execSync` with `spawnSync` using array arguments
+   - **Domain Validation:** Added regex validation `/^[a-zA-Z0-9.-]+$/` for all domain inputs
+   - **SSL Certificate Checking:** Refactored to chain `openssl` commands programmatically without shell
+   - **HTTP Status Parsing:** Fixed curl output parsing to extract status code from last line
+   - **Warning Handling:** Modified exit logic to only fail on 'fail' status, not 'warning'
+
+3. **Custom Domain Configuration** (`docs/CI_CD.md`)
+   - Complete setup procedure with automated scripts
+   - Microsoft 365 Admin Center instructions using assisted path
+   - Removed Azure DNS references (not applicable)
+   - Step-by-step guide: Get Shuttle URL → Add CNAME → Monitor DNS → Add SSL → Verify
+   - Manual procedures as backup for automated scripts
+   - Troubleshooting section for common issues
+
+4. **Documentation Consolidation**
+   - Merged `scripts/README.md` content into `docs/CI_CD.md`
+   - Added "Project Scripts" section with script documentation
+   - Updated "Custom Domain Configuration" section with automation-first approach
+   - Clarified warning behavior in verification script documentation
+   - Updated cost considerations ($0/month total)
+
+5. **Successful Custom Domain Setup**
+   - ✅ CNAME record added via Microsoft 365 Admin Center assisted path
+   - ✅ DNS propagation verified (completed immediately)
+   - ✅ SSL certificate added successfully
+   - ✅ Complete verification passed (all checks green)
+   - ✅ Custom domain live at: https://tensor-logic.samkirk.com
+   - ✅ HTTP automatically redirects to HTTPS
+   - ✅ SSL certificate valid until March 2026 (auto-renewal configured)
+
+6. **Key Achievements:**
+   - ✅ Custom domain working with HTTPS
+   - ✅ Automated DNS propagation monitoring
+   - ✅ Comprehensive domain verification script
+   - ✅ Secure script implementation (no command injection vulnerabilities)
+   - ✅ Complete documentation with automation-first approach
+   - ✅ Both URLs functional: custom domain and Shuttle URL
