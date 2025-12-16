@@ -128,17 +128,51 @@ function checkSSLCertificate(domain: string): { valid: boolean; expirationDate?:
     if (!/^[a-zA-Z0-9.-]+$/.test(domain)) {
       return { valid: false };
     }
-    // Use spawnSync with shell for pipe operations, but domain is validated
-    const result = spawnSync(
-      `echo | openssl s_client -servername ${domain} -connect ${domain}:443 2>/dev/null | openssl x509 -noout -dates 2>/dev/null`,
-      { encoding: 'utf-8', shell: true }
+    // Chain commands without shell to prevent injection
+    // First: Get SSL certificate info using openssl s_client
+    // Send newline to stdin to make openssl exit after getting certificate
+    const sslClientResult = spawnSync(
+      'openssl',
+      ['s_client', '-servername', domain, '-connect', `${domain}:443`],
+      { 
+        encoding: 'utf-8',
+        input: '\n', // Send newline to make openssl exit (equivalent to 'echo |')
+        stdio: ['pipe', 'pipe', 'pipe'] // stdin, stdout, stderr
+      }
     );
-    if (result.error || result.status !== 0) {
+    
+    // openssl s_client may return non-zero status but still provide certificate data
+    // Check for error first, then check if we got certificate data
+    if (sslClientResult.error) {
       return { valid: false };
     }
-    const output = result.stdout?.toString() || '';
     
-    const match = output.match(/notAfter=(.+)/);
+    // Extract certificate data from output (between BEGIN and END markers)
+    const output = sslClientResult.stdout?.toString() || '';
+    const certMatch = output.match(/-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/);
+    if (!certMatch) {
+      return { valid: false };
+    }
+    
+    const certData = certMatch[0];
+    
+    // Second: Extract certificate dates from the certificate data
+    const x509Result = spawnSync(
+      'openssl',
+      ['x509', '-noout', '-dates'],
+      {
+        encoding: 'utf-8',
+        input: certData,
+        stdio: ['pipe', 'pipe', 'pipe']
+      }
+    );
+    
+    if (x509Result.error || x509Result.status !== 0) {
+      return { valid: false };
+    }
+    
+    const datesOutput = x509Result.stdout?.toString() || '';
+    const match = datesOutput.match(/notAfter=(.+)/);
     if (match && match[1]) {
       return {
         valid: true,
