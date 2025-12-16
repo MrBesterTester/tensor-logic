@@ -11,10 +11,13 @@ use tower_http::trace::TraceLayer;
 
 fn get_dist_path() -> PathBuf {
     // In Shuttle runtime, assets declared in [build].assets are copied to /build_assets/
+    // The Docker build does: COPY --from=builder /build_assets /app
+    // This copies the CONTENTS of /build_assets to /app, so dist/ becomes /app/dist/
     // Check if we're running on Shuttle (SHUTTLE env var is set)
     if env::var("SHUTTLE").is_ok() {
-        // Production: assets are at /build_assets/dist/
-        PathBuf::from("/build_assets/dist")
+        // Production: Docker copies /build_assets/dist/* to /app/dist/*
+        // Try /app/dist first (where Docker copies to), then /build_assets/dist (original location)
+        PathBuf::from("/app/dist")
     } else {
         // Local development: assets are relative to current working directory
         // Get current directory and resolve dist path
