@@ -812,9 +812,13 @@ node scripts/dist/verify-domain-setup.js tensor-logic.samkirk.com tensor-logic-n
 
 **Output:**
 - ✅ Green checkmarks for passing checks
-- ⚠️ Warning indicators for potential issues
-- ❌ Red X for failing checks
+- ⚠️ Warning indicators for potential issues (non-critical, won't cause script to fail)
+- ❌ Red X for failing checks (causes script to exit with error code)
 - Detailed messages for each check
+
+**Exit Codes:**
+- Exit code 0: All critical checks passed (warnings are allowed)
+- Exit code 1: One or more critical checks failed
 
 ---
 
