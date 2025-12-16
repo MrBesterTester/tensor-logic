@@ -845,7 +845,7 @@ User → tensor-logic.samkirk.com
 - ✅ Shuttle project deployed: `tensor-logic` (Project ID: `proj_01KCJDQWVDRP2A38R07R3M30F4`)
 - ✅ Current Shuttle URL: `https://tensor-logic-noo5.shuttle.app`
 - ✅ Domain ownership: `samkirk.com`
-- ✅ Access to DNS management for `samkirk.com` (Microsoft/Azure DNS)
+- ✅ Access to DNS management for `samkirk.com` (Microsoft 365 Admin Center)
 - ✅ Shuttle CLI installed and authenticated
 
 **What You'll Create:**
@@ -886,8 +886,6 @@ Add a CNAME record at your DNS registrar:
 
 **Quick Reference:**
 - **Microsoft 365 Admin Center:** See [Manual DNS Configuration](#manual-dns-configuration) below
-- **Azure DNS:** See [Manual DNS Configuration](#manual-dns-configuration) below
-- **Azure CLI:** The chatbot can help generate Azure CLI commands if you provide the resource group name
 
 **Note:** This is the only manual step required. All subsequent steps can be automated.
 
@@ -987,53 +985,25 @@ The following sections provide detailed manual procedures as alternatives to the
 
 **Microsoft 365 Admin Center:**
 
-1. Go to: [admin.microsoft.com](https://admin.microsoft.com)
+1. Go to: [admin.microsoft.com](https://admin.microsoft.com) or [admin.cloud.microsoft.com](https://admin.cloud.microsoft.com)
 2. Navigate to: **Settings → Domains**
 3. Click on `samkirk.com`
 4. Click: **DNS records** or **Manage DNS**
-5. Click: **Add record**
-6. Configure the CNAME record:
-   - **Type:** CNAME
-   - **Host name / Alias:** `tensor-logic`
-   - **Points to address:** `tensor-logic-noo5.shuttle.app` (without https://)
+
+5. **Using the Assisted Path:**
+   - If you see an assisted path or guided wizard option, use it to add custom DNS records
+   - The assisted path will guide you through adding a CNAME record step by step
+   - This is the recommended approach as it simplifies the process
+
+6. **Configure the CNAME record:**
+   - **Type:** CNAME (or select from dropdown)
+   - **Host name / Alias:** `tensor-logic` (without the domain - just `tensor-logic`)
+   - **Points to address / Target:** `tensor-logic-noo5.shuttle.app` (without `https://` or trailing dot)
    - **TTL:** 3600 (1 hour) or leave default
-7. Click **Save**
 
-**Azure DNS (Web UI):**
+7. Click **Save** or **Add** to complete the process
 
-1. Sign in to Azure Portal: https://portal.azure.com
-2. Search for "DNS zones" in the search bar
-3. Select your subscription and click on `samkirk.com` zone
-4. Click **+ Record set**
-5. Configure:
-   - **Name:** `tensor-logic`
-   - **Type:** CNAME
-   - **TTL:** 3600 seconds (1 hour)
-   - **Alias:** `tensor-logic-noo5.shuttle.app`
-6. Click **OK**
-
-**Azure CLI:**
-
-```bash
-# Login to Azure
-az login
-
-# Set your subscription (if you have multiple)
-az account set --subscription "Your Subscription Name"
-
-# Add CNAME record
-az network dns record-set cname set-record \
-  --resource-group YourResourceGroup \
-  --zone-name samkirk.com \
-  --record-set-name tensor-logic \
-  --cname tensor-logic-noo5.shuttle.app
-
-# Verify
-az network dns record-set cname show \
-  --resource-group YourResourceGroup \
-  --zone-name samkirk.com \
-  --name tensor-logic
-```
+**Note:** If you don't see an assisted path option, look for a **"+ Add"** or **"Add record"** button, or scroll down past service-specific sections (Exchange, Skype, etc.) to find a **"Custom records"** or **"Other records"** section.
 
 #### Manual DNS Checks
 
@@ -1210,16 +1180,11 @@ echo | openssl s_client -servername tensor-logic.samkirk.com \
 - DNS management included with Microsoft 365 subscription
 - No additional cost for CNAME records
 
-**Azure DNS:**
-- First 25 hosted zones: $0.50/zone/month
-- First 1 billion queries: $0.40 per million queries
-- CNAME records: No additional charge
-
 **Shuttle:**
 - Custom domains: **Free** (included in all tiers)
 - SSL certificates: **Free** (Let's Encrypt)
 
-**Total Additional Cost:** $0-0.50/month (if using Azure DNS)
+**Total Additional Cost:** $0/month
 
 ### Quick Reference Card
 
