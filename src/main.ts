@@ -354,11 +354,13 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       
       const parts = formatter.formatToParts(now);
-      const year = parts.find(p => p.type === 'year')?.value || '';
-      const month = parts.find(p => p.type === 'month')?.value || '';
-      const day = parts.find(p => p.type === 'day')?.value || '';
-      const hours = parts.find(p => p.type === 'hour')?.value || '';
-      const minutes = parts.find(p => p.type === 'minute')?.value || '';
+      // Use nullish coalescing (??) instead of logical OR (||) to ensure we never get "undefined" in template literals
+      // The ?? operator only checks for null/undefined, not other falsy values like empty strings
+      const year = parts.find(p => p.type === 'year')?.value ?? '';
+      const month = parts.find(p => p.type === 'month')?.value ?? '';
+      const day = parts.find(p => p.type === 'day')?.value ?? '';
+      const hours = parts.find(p => p.type === 'hour')?.value ?? '';
+      const minutes = parts.find(p => p.type === 'minute')?.value ?? '';
       
       buildTime = `${year}-${month}-${day}_${hours}:${minutes}`;
     } else {
