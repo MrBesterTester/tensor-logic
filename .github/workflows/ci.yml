@@ -69,11 +69,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         
-      - name: Build frontend
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
+          
+      - name: Build frontend
         run: |
           npm ci
           npm run build
