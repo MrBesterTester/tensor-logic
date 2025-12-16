@@ -338,7 +338,33 @@ document.addEventListener('DOMContentLoaded', () => {
   // Display build version
   const buildVersionEl = document.getElementById('build-version');
   if (buildVersionEl) {
-    const buildTime = typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : 'unknown';
+    // In dev mode, calculate timestamp at runtime; in production, use build-time value
+    let buildTime: string;
+    if (import.meta.env.DEV) {
+      // Dev mode: calculate current timestamp on each page load
+      const now = new Date();
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Los_Angeles',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+      
+      const parts = formatter.formatToParts(now);
+      const year = parts.find(p => p.type === 'year')?.value || '';
+      const month = parts.find(p => p.type === 'month')?.value || '';
+      const day = parts.find(p => p.type === 'day')?.value || '';
+      const hours = parts.find(p => p.type === 'hour')?.value || '';
+      const minutes = parts.find(p => p.type === 'minute')?.value || '';
+      
+      buildTime = `${year}-${month}-${day}_${hours}:${minutes}`;
+    } else {
+      // Production: use build-time timestamp
+      buildTime = typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : 'unknown';
+    }
     buildVersionEl.textContent = buildTime;
   }
 });
