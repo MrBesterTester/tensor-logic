@@ -83,12 +83,21 @@ function checkHTTPAccess(domain: string): { accessible: boolean; statusCode?: nu
       return { accessible: false };
     }
     // Use spawnSync with array arguments to prevent command injection
-    const result = spawnSync('curl', ['-s', '-o', '/dev/null', '-w', '%{http_code}', '-I', `http://${domain}`], { encoding: 'utf-8' });
+    // Use -w with newline to put status code on its own line for easier extraction
+    const result = spawnSync('curl', ['-s', '-o', '/dev/null', '-w', '\n%{http_code}', '-I', `http://${domain}`], { encoding: 'utf-8' });
     if (result.error || result.status !== 0) {
       return { accessible: false };
     }
     const output = result.stdout?.toString() || '';
-    const statusCode = parseInt(output.trim(), 10);
+    // Extract status code from last line (after headers)
+    const lines = output.trim().split('\n');
+    const statusCodeStr = lines[lines.length - 1] || '';
+    const statusCode = parseInt(statusCodeStr, 10);
+    
+    // Check if we got a valid status code
+    if (isNaN(statusCode)) {
+      return { accessible: false };
+    }
     
     return {
       accessible: statusCode >= 200 && statusCode < 400,
@@ -106,12 +115,21 @@ function checkHTTPSAccess(domain: string): { accessible: boolean; statusCode?: n
       return { accessible: false };
     }
     // Use spawnSync with array arguments to prevent command injection
-    const result = spawnSync('curl', ['-s', '-o', '/dev/null', '-w', '%{http_code}', '-I', `https://${domain}`], { encoding: 'utf-8' });
+    // Use -w with newline to put status code on its own line for easier extraction
+    const result = spawnSync('curl', ['-s', '-o', '/dev/null', '-w', '\n%{http_code}', '-I', `https://${domain}`], { encoding: 'utf-8' });
     if (result.error || result.status !== 0) {
       return { accessible: false };
     }
     const output = result.stdout?.toString() || '';
-    const statusCode = parseInt(output.trim(), 10);
+    // Extract status code from last line (after headers)
+    const lines = output.trim().split('\n');
+    const statusCodeStr = lines[lines.length - 1] || '';
+    const statusCode = parseInt(statusCodeStr, 10);
+    
+    // Check if we got a valid status code
+    if (isNaN(statusCode)) {
+      return { accessible: false };
+    }
     
     return {
       accessible: statusCode >= 200 && statusCode < 400,
@@ -317,7 +335,8 @@ function main() {
   for (const result of results) {
     const icon = result.status === 'pass' ? '✅' : result.status === 'warning' ? '⚠️' : '❌';
     console.log(`${icon} ${result.check}: ${result.message}`);
-    if (result.status !== 'pass') {
+    // Only treat 'fail' status as failure, not 'warning'
+    if (result.status === 'fail') {
       allPassed = false;
     }
   }
