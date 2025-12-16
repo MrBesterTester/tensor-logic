@@ -80,6 +80,11 @@ jobs:
           npm ci
           npm run build
           
+      - name: Verify dist folder exists
+        run: |
+          ls -la backend/tensor-logic/dist/ || echo "ERROR: dist folder not found!"
+          test -f backend/tensor-logic/dist/index.html || echo "ERROR: index.html not found!"
+          
       - name: Deploy to Shuttle
         uses: shuttle-hq/deploy-action@v2
         with:

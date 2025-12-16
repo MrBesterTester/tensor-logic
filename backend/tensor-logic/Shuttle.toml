@@ -1,13 +1,14 @@
 # Include dist files in deployment (dist/ is gitignored, so we need to explicitly include it)
+# Note: According to Shuttle docs, specifying only a folder name doesn't work - use "dist/*" instead
 [deploy]
 include = [
-  "dist",
+  "dist/*",
 ]
 
 # Copy dist files to runtime image
-# When you specify "dist", the entire dist/ directory is copied to /build_assets/dist/
+# The dist/ directory contents are copied to /build_assets/dist/
 [build]
 assets = [
-  "dist",
+  "dist/*",
 ]
 
