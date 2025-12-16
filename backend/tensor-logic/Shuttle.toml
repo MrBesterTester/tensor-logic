@@ -1,12 +1,13 @@
-# Include dist files in deployment
+# Include dist files in deployment (dist/ is gitignored, so we need to explicitly include it)
 [deploy]
 include = [
-  "dist/*",
+  "dist",
 ]
 
 # Copy dist files to runtime image
+# When you specify "dist", the entire dist/ directory is copied to /build_assets/dist/
 [build]
 assets = [
-  "dist/*",
+  "dist",
 ]
 
