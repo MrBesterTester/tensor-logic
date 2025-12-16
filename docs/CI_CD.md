@@ -387,13 +387,25 @@ Since this is a **static frontend project** (not a Rust backend), you need to cr
 
 ### Setting Up GitHub Actions Deployment
 
+<Note>
+**Chatbot Assistance:** Step 2 (updating the CI workflow) can be handled automatically by asking the chatbot/AI assistant to "set up GitHub Actions deployment" or "add deployment job to CI workflow". The chatbot will:
+- Read the current workflow file
+- Get the Shuttle project ID automatically using `shuttle project status` (if the project is linked)
+- Add the deployment job with the correct configuration
+- Update the workflow file with the correct project ID and paths
+
+**Manual Step Required:** Step 1 (adding GitHub secrets) must be done manually through the GitHub web interface, as it requires your Shuttle API key and GitHub UI access. The chatbot cannot access GitHub's secret management UI.
+</Note>
+
 To deploy automatically from GitHub Actions:
 
-1. **Add Shuttle secrets to GitHub:**
+1. **Add Shuttle secrets to GitHub (Manual - Required):**
    - Go to: `https://github.com/MrBesterTester/tensor-logic/settings/secrets/actions`
    - Click "New repository secret"
    - Add `SHUTTLE_API_KEY` with your API key from Shuttle Console
    - Add any other secrets your project needs
+   
+   **Note:** This step cannot be automated and must be done through the GitHub web interface.
 
 2. **Update your CI workflow** to include deployment:
 
@@ -446,7 +458,7 @@ To deploy automatically from GitHub Actions:
            uses: actions/upload-artifact@v4
            with:
              name: dist
-             path: dist/
+             path: backend/tensor-logic/dist/
              retention-days: 7
 
      deploy:
