@@ -271,9 +271,16 @@ function renderExample(example: Example): void {
 }
 
 let currentStepIndex = 0;
+let keyboardHandler: ((e: KeyboardEvent) => void) | null = null;
 
 function setupStepInteractivity(totalSteps: number): void {
   currentStepIndex = 0;
+  
+  // Remove previous keyboard listener if it exists
+  if (keyboardHandler) {
+    document.removeEventListener('keydown', keyboardHandler);
+    keyboardHandler = null;
+  }
   
   // Step toggle functionality
   const stepHeaders = document.querySelectorAll('.step-header[data-step-toggle]');
@@ -321,6 +328,13 @@ function setupStepInteractivity(totalSteps: number): void {
         step.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       } else {
         step.classList.remove('active');
+        // Bug fix: Remove expanded class and update icon for inactive steps
+        const content = step.querySelector('.step-content');
+        if (content) {
+          content.classList.remove('expanded');
+          const toggleIcon = step.querySelector('.toggle-icon');
+          if (toggleIcon) toggleIcon.textContent = '▶';
+        }
       }
     });
   }
@@ -343,8 +357,8 @@ function setupStepInteractivity(totalSteps: number): void {
     });
   }
 
-  // Keyboard navigation
-  document.addEventListener('keydown', (e) => {
+  // Keyboard navigation - store handler reference for cleanup
+  keyboardHandler = (e: KeyboardEvent) => {
     if (e.key === 'ArrowLeft' && currentStepIndex > 0) {
       currentStepIndex--;
       updateStepNavigation();
@@ -352,7 +366,8 @@ function setupStepInteractivity(totalSteps: number): void {
       currentStepIndex++;
       updateStepNavigation();
     }
-  });
+  };
+  document.addEventListener('keydown', keyboardHandler);
 
   // Initialize
   updateStepNavigation();
