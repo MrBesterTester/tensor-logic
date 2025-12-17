@@ -257,18 +257,11 @@ The difference is:
 
 The smooth activations enable gradient-based learning, while the
 underlying tensor operations remain exactly the same.`,
-    code: `// MLP in Tensor Logic notation
-// Layer 1: Input → Hidden
-PreHidden[h] = W1[h,i] · Input[i] + B1[h]
-Hidden[h] = ReLU(PreHidden[h])
+    code: `// Neural layer:
+Output[x] = activation(Σ_y Weight[x,y] · Input[y] + Bias[x])
 
-// Layer 2: Hidden → Output
-PreOutput[o] = W2[o,h] · Hidden[h] + B2[o]
-Output[o] = σ(PreOutput[o])
-
-// Where:
-//   W1[h,i] · Input[i]  is einsum "hi,i->h"
-//   W2[o,h] · Hidden[h] is einsum "oh,h->o"`,
+// This is identical in structure to a logical rule:
+// Head[x] ← Body1[x,y] · Body2[y]`,
     steps,
   };
 }
@@ -388,10 +381,8 @@ All four XOR cases computed correctly!`,
     title: 'Batch XOR Computation',
     description: `Demonstrates batch processing - computing all XOR inputs simultaneously.
 The batch dimension is simply another tensor index that flows through unchanged.`,
-    code: `// Batch MLP computation
-PreHidden[b,h] = Inputs[b,i] · W1[h,i] + B1[h]
-Hidden[b,h] = ReLU(PreHidden[b,h])
-Output[b,o] = σ(Hidden[b,h] · W2[o,h])`,
+    code: `// Batch MLP: same as single example, with batch dimension b:
+Output[b,x] = activation(Σ_y Weight[x,y] · Input[b,y] + Bias[x])`,
     steps,
   };
 }

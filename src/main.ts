@@ -16,6 +16,7 @@ import {
   runKernelExample,
   runGraphicalModelExample,
   runHMMExample,
+  runGNNExample,
 } from './tensor-logic';
 
 interface Example {
@@ -66,6 +67,12 @@ const examples: Example[] = [
     run: runMultiHeadAttentionExample,
   },
   {
+    id: 'gnn',
+    name: 'Graph Neural Network',
+    category: 'neural',
+    run: runGNNExample,
+  },
+  {
     id: 'kernel',
     name: 'Kernel Machines (SVM)',
     category: 'hybrid',
@@ -92,20 +99,102 @@ function escapeHtml(text: string): string {
 }
 
 function highlightCode(code: string): string {
-  // Simple syntax highlighting for tensor logic notation
-  return code
-    // Comments
-    .replace(/(\/\/.*$)/gm, '<span class="comment">$1</span>')
-    // Keywords and functions
-    .replace(/\b(ReLU|softmax|sigmoid|threshold|sign|exp|max|concat)\b/g, '<span class="function">$1</span>')
-    // Tensor indices in brackets
-    .replace(/\[([a-z_',\s\d=]+)\]/gi, '[<span class="index">$1</span>]')
-    // Einstein sum notation in quotes
-    .replace(/"([a-z,\->]+)"/g, '"<span class="einsum">$1</span>"')
-    // Numbers
-    .replace(/\b(\d+\.?\d*)\b/g, '<span class="number">$1</span>')
-    // Operators
-    .replace(/([·←→=+\-×÷∑σ√])/g, '<span class="operator">$1</span>');
+  // Convert to more symbolic mathematical notation matching the paper
+  let symbolic = code
+    // Replace einsum patterns with proper summation notation (matching paper: Σ_y)
+    .replace(/einsum\s*\(["']([a-z]+),([a-z]+)->([a-z]+)["']\)/g, 'Σ_$2')
+    .replace(/einsum\s*\(["']([a-z]+)->([a-z]+)["']\)/g, 'Σ_$1')
+    // Replace "sum over" with Σ_y notation
+    .replace(/sum over ([a-z])/gi, 'Σ_$1')
+    // Convert Σ_y notation to HTML (paper uses subscript, we convert to HTML sub tag)
+    // Match Σ_ followed by {letters,letters} first (multi-index case)
+    .replace(/Σ_\{([a-z,]+)\}/g, 'Σ<sub>$1</sub>')
+    // Then match Σ_ followed by one or more letters (single index case)
+    .replace(/Σ_([a-z]+)/g, 'Σ<sub>$1</sub>')
+    // Replace function names with Greek letters (before other processing)
+    .replace(/\bsigmoid\s*\(/g, 'σ(')
+    .replace(/\bthreshold\s*\(/g, 'θ(')
+    // Replace multiplication with middle dot
+    .replace(/\s*\*\s*/g, ' · ')
+    .replace(/\s+·\s+/g, ' · ')
+    // Normalize spacing around operators (but don't add HTML yet)
+    .replace(/\s*=\s*/g, ' = ')
+    .replace(/\s*←\s*/g, ' ← ')
+    .replace(/\s*→\s*/g, ' → ')
+    .replace(/\s*\+\s*/g, ' + ')
+    .replace(/\s*-\s*/g, ' - ')
+    .replace(/\s*\/\s*/g, ' / ');
+
+  // Apply syntax highlighting - order matters!
+  // First, protect already-processed HTML by using a placeholder approach
+  // or process in order that avoids conflicts
+  
+  // 1. Comments first (they won't interfere)
+  let highlighted = symbolic.replace(/(\/\/.*$)/gm, '<span class="comment">$1</span>');
+  
+  // 2. Summation symbols (must come before operator replacement)
+  highlighted = highlighted.replace(/Σ<sub>([^<]+)<\/sub>/g, '<span class="operator">Σ</span><sub class="index">$1</sub>');
+  
+  // 3. Tensor names with brackets (must come before operator replacement to avoid matching = inside)
+  // Match tensor name followed by brackets, but not if already inside HTML tags
+  highlighted = highlighted.replace(/([A-Z][a-zA-Z_]*)\[([^\]]+)\]/g, (match, tensorName, indices) => {
+    // Check if this is already inside an HTML tag
+    if (match.includes('<') || match.includes('>')) {
+      return match;
+    }
+    return `<span class="tensor">${tensorName}</span>[<span class="index">${indices}</span>]`;
+  });
+  
+  // 4. Numbers
+  highlighted = highlighted.replace(/\b(\d+\.?\d*)\b/g, '<span class="number">$1</span>');
+  
+  // 5. Functions (including Greek letters)
+  highlighted = highlighted.replace(/\b(ReLU|softmax|sigmoid|threshold|sign|exp|max|concat|σ|θ)\b/g, '<span class="function">$1</span>');
+  
+  // 6. Einstein sum notation in quotes
+  highlighted = highlighted.replace(/"([a-z,\->]+)"/g, '"<span class="einsum">$1</span>"');
+  
+  // 7. Operators last (but avoid matching inside HTML tags)
+  // Process operators only in text that's not inside HTML tags
+  // Split by HTML tags and process only the text parts
+  const processOperators = (text: string): string => {
+    const parts: string[] = [];
+    const tagRegex = /<[^>]+>/g;
+    let match;
+    const matches: RegExpExecArray[] = [];
+    
+    // Collect all tag matches
+    while ((match = tagRegex.exec(text)) !== null) {
+      matches.push(match);
+    }
+    
+    // Process text between tags
+    for (let i = 0; i <= matches.length; i++) {
+      const start = i === 0 ? 0 : matches[i - 1].index + matches[i - 1][0].length;
+      const end = i === matches.length ? text.length : matches[i].index;
+      
+      if (start < end) {
+        const textPart = text.substring(start, end);
+        // Process operators in this text part
+        const processed = textPart.replace(/([·←→=+\-×÷∑σ√θ])/g, '<span class="operator">$1</span>');
+        parts.push(processed);
+      }
+      
+      if (i < matches.length) {
+        // Add the tag unchanged
+        parts.push(matches[i][0]);
+      }
+    }
+    
+    return parts.join('');
+  };
+  
+  highlighted = processOperators(highlighted);
+  
+  // Clean up any double-wrapping (defensive)
+  highlighted = highlighted.replace(/<span class="operator"><span class="operator">([^<]+)<\/span><\/span>/g, '<span class="operator">$1</span>');
+  
+  return highlighted;
 }
 
 function renderExample(example: Example): void {
@@ -132,23 +221,28 @@ function renderExample(example: Example): void {
         <pre class="description">${escapeHtml(result.description)}</pre>
       </section>
       
-      <section class="code-section">
-        <h2>Tensor Logic Code</h2>
-        <pre class="code-block">${highlightCode(escapeHtml(result.code))}</pre>
-      </section>
-      
       <section class="steps-section">
-        <h2>Step-by-Step Execution</h2>
+        <div class="steps-header">
+          <h2>Step-by-Step Execution</h2>
+          <div class="step-controls">
+            <button class="step-nav-btn" id="prev-step" disabled>← Previous</button>
+            <span class="step-counter">Step <span id="current-step">1</span> of ${result.steps.length}</span>
+            <button class="step-nav-btn" id="next-step" ${result.steps.length <= 1 ? 'disabled' : ''}>Next →</button>
+          </div>
+        </div>
         <div class="steps-container">
           ${result.steps
             .map(
               (step, i) => `
-            <div class="step">
-              <div class="step-header">
+            <div class="step ${i === 0 ? 'active' : ''}" data-step="${i}">
+              <div class="step-header" data-step-toggle="${i}">
                 <span class="step-number">${i + 1}</span>
                 <h3>${escapeHtml(step.name)}</h3>
+                <button class="step-toggle" aria-label="Toggle step ${i + 1}">
+                  <span class="toggle-icon">${i === 0 ? '▼' : '▶'}</span>
+                </button>
               </div>
-              <div class="step-content">
+              <div class="step-content ${i === 0 ? 'expanded' : ''}">
                 <div class="step-explanation">
                   <pre>${escapeHtml(step.explanation)}</pre>
                 </div>
@@ -165,6 +259,103 @@ function renderExample(example: Example): void {
       </section>
     </article>
   `;
+
+  // Add interactive functionality
+  setupStepInteractivity(result.steps.length);
+  
+  // Scroll to the top of the example container so user sees the title and overview
+  const exampleContainer = mainContent.querySelector('.example-container');
+  if (exampleContainer) {
+    exampleContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+let currentStepIndex = 0;
+
+function setupStepInteractivity(totalSteps: number): void {
+  currentStepIndex = 0;
+  
+  // Step toggle functionality
+  const stepHeaders = document.querySelectorAll('.step-header[data-step-toggle]');
+  stepHeaders.forEach((header) => {
+    header.addEventListener('click', () => {
+      const stepIndex = parseInt(header.getAttribute('data-step-toggle') || '0');
+      const step = document.querySelector(`.step[data-step="${stepIndex}"]`);
+      const content = step?.querySelector('.step-content');
+      const toggleIcon = header.querySelector('.toggle-icon');
+      
+      if (step && content) {
+        const isExpanded = content.classList.contains('expanded');
+        if (isExpanded) {
+          content.classList.remove('expanded');
+          if (toggleIcon) toggleIcon.textContent = '▶';
+        } else {
+          content.classList.add('expanded');
+          if (toggleIcon) toggleIcon.textContent = '▼';
+        }
+      }
+    });
+  });
+
+  // Step navigation
+  const prevBtn = document.getElementById('prev-step') as HTMLButtonElement | null;
+  const nextBtn = document.getElementById('next-step') as HTMLButtonElement | null;
+  const currentStepSpan = document.getElementById('current-step');
+
+  function updateStepNavigation() {
+    if (prevBtn) prevBtn.disabled = currentStepIndex === 0;
+    if (nextBtn) nextBtn.disabled = currentStepIndex >= totalSteps - 1;
+    if (currentStepSpan) currentStepSpan.textContent = String(currentStepIndex + 1);
+
+    // Update active step
+    document.querySelectorAll('.step').forEach((step, i) => {
+      if (i === currentStepIndex) {
+        step.classList.add('active');
+        const content = step.querySelector('.step-content');
+        if (content) {
+          content.classList.add('expanded');
+          const toggleIcon = step.querySelector('.toggle-icon');
+          if (toggleIcon) toggleIcon.textContent = '▼';
+        }
+        // Scroll to active step
+        step.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else {
+        step.classList.remove('active');
+      }
+    });
+  }
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      if (currentStepIndex > 0) {
+        currentStepIndex--;
+        updateStepNavigation();
+      }
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      if (currentStepIndex < totalSteps - 1) {
+        currentStepIndex++;
+        updateStepNavigation();
+      }
+    });
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft' && currentStepIndex > 0) {
+      currentStepIndex--;
+      updateStepNavigation();
+    } else if (e.key === 'ArrowRight' && currentStepIndex < totalSteps - 1) {
+      currentStepIndex++;
+      updateStepNavigation();
+    }
+  });
+
+  // Initialize
+  updateStepNavigation();
 }
 
 function renderNav(): void {

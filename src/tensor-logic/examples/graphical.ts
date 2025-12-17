@@ -323,24 +323,11 @@ Tensor Logic unifies:
 - Symbolic AI (Boolean tensors → SAT solving, theorem proving)
 - Probabilistic AI (Real tensors → graphical model inference)
 - Neural AI (Learned tensors → deep learning)`,
-    code: `// Bayesian Network in Tensor Logic
-// Define conditional probability tables as tensors:
-P_D[d]           // Prior on Difficulty
-P_I[i]           // Prior on Intelligence
-P_G_DI[d,i,g]    // P(Grade | Difficulty, Intelligence)
-P_L_G[g,l]       // P(Letter | Grade)
-
-// Compute joint distribution via factor product:
-P_DI[d,i] = P_D[d] · P_I[i]             // "d,i->di"
-P_DIG[d,i,g] = P_DI[d,i] · P_G_DI[d,i,g] // "di,dig->dig"
-P_DIGL[d,i,g,l] = P_DIG[d,i,g] · P_L_G[g,l] // "dig,gl->digl"
+    code: `// Joint probability distribution:
+P(A,B,C) = ψ_AB(A,B) · ψ_BC(B,C) / Z
 
 // Marginalization (sum out variables):
-P_L[l] = P_DIGL[d,i,g,l]  // "digl->l" sums out d,i,g
-
-// Conditioning (Bayes' rule):
-P_IL[i,l] = P_DIGL[d,i,g,l]  // marginalize
-P_I_given_L[i] = P_IL[i,l=1] / P_L[l=1]  // normalize`,
+P(A) = Σ_B,C P(A,B,C)`,
     steps,
   };
 }
@@ -559,11 +546,11 @@ Transformers can be seen as a generalization where the
 α₀[s] = π[s] · B[s,o₀]
 
 // Recurse: α_t = (α_{t-1} · A) ⊙ B[:,o_t]
-temp[s'] = α[s] · A[s,s']   // einsum "s,ss'->s'"
+temp[s'] = Σ_s α[s] · A[s,s']
 α'[s'] = temp[s'] · B[s',o]
 
 // Normalize for posterior:
-P(S_t|obs) = α_t / Σα_t`,
+P(S_t|obs) = α_t / Σ_s α_t[s]`,
     steps,
   };
 }

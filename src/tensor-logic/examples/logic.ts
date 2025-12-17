@@ -207,20 +207,11 @@ Where:
 
 This is the Einstein summation "xy,yz->xz" - the same operation that
 underlies neural network layers, but operating on Boolean tensors.`,
-    code: `// Define relations as Boolean tensors
-Parent[x,y] = {
-  [Alice,Bob]: 1,
-  [Bob,Charlie]: 1,
-  [Bob,Diana]: 1
-}
+    code: `// Logical rule:
+Ancestor(x,z) ← Parent(x,y), Ancestor(y,z)
 
-// Rule 1: Parents are ancestors
-Ancestor[x,y] = Parent[x,y]
-
-// Rule 2: Transitive closure (iterate until fixpoint)
-Ancestor[x,z] += threshold(Ancestor[x,y] · Parent[y,z])
-//               ^^^^^^^^^ converts sum to Boolean
-//                        Einstein summation: sum over y`,
+// Equivalent tensor operation:
+Ancestor[x,z] = Σ_y Parent[x,y] · Ancestor[y,z]`,
     steps,
   };
 }

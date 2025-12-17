@@ -280,22 +280,12 @@ Kernels can encode rich structure:
 - String kernels for text (count shared substrings)
 - Graph kernels for molecules (shared subgraphs)
 - Custom kernels for domain knowledge`,
-    code: `// Kernel SVM in Tensor Logic
+    code: `// Prediction: f(x) = Σ_i α_i · k(x_i, x)
+// In tensor logic: Output = Alpha[i] · Kernel[i,j] · Input[j]
 
-// Compute kernel matrix (e.g., RBF kernel)
-K[i,j] = exp(-||X[i] - X[j]||² / 2σ²)
-
-// Or linear kernel:
-K[i,j] = X[i,d] · X[j,d]  // einsum "id,jd->ij"
-
-// Prediction (after learning α):
-Pred[j] = α[i] · Y[i] · K[i,j]  // einsum "i,i,ij->j"
-
-// Classification:
-Class[j] = sign(Pred[j])
-
-// This is the same structure as logical inference:
-// "Find similar examples and combine their labels"`,
+// Common kernels:
+// Linear: k(x,x') = x·x'
+// RBF: k(x,x') = exp(-||x-x'||² / 2σ²)`,
     steps,
   };
 }

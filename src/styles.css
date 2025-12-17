@@ -523,8 +523,65 @@ a:hover {
 .code-block .einsum { color: var(--accent-neural); font-weight: 500; }
 .code-block .number { color: var(--syntax-number); }
 .code-block .operator { color: var(--syntax-operator); }
+.code-block .tensor { color: var(--accent-primary); font-weight: 500; }
+.code-block sub.index {
+  font-size: 0.75em;
+  vertical-align: sub;
+  color: var(--syntax-string);
+  font-weight: normal;
+  margin-left: 0.1em;
+}
+.code-block sub {
+  font-size: 0.75em;
+  vertical-align: sub;
+  line-height: 0;
+}
 
 /* Steps */
+.steps-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.step-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.step-nav-btn {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  padding: var(--space-xs) var(--space-md);
+  background: var(--bg-tertiary);
+  border: var(--border-subtle);
+  border-radius: 6px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.step-nav-btn:hover:not(:disabled) {
+  background: var(--bg-elevated);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.step-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.step-counter {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
 .steps-container {
   display: flex;
   flex-direction: column;
@@ -536,11 +593,16 @@ a:hover {
   border: var(--border-subtle);
   border-radius: 12px;
   overflow: hidden;
-  transition: box-shadow var(--transition-normal);
+  transition: all var(--transition-normal);
 }
 
 .step:hover {
   box-shadow: var(--shadow-sm);
+}
+
+.step.active {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
 }
 
 .step-header {
@@ -550,6 +612,17 @@ a:hover {
   padding: var(--space-md) var(--space-lg);
   background: var(--bg-tertiary);
   border-bottom: var(--border-subtle);
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--transition-fast);
+}
+
+.step-header:hover {
+  background: var(--bg-elevated);
+}
+
+.step-header h3 {
+  flex: 1;
 }
 
 .step-number {
@@ -571,13 +644,43 @@ a:hover {
   font-size: 1rem;
   font-weight: 500;
   color: var(--text-primary);
+  margin: 0;
+}
+
+.step-toggle {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: var(--space-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast);
+}
+
+.step-toggle:hover {
+  color: var(--accent-primary);
+}
+
+.toggle-icon {
+  font-size: 0.75rem;
+  transition: transform var(--transition-fast);
 }
 
 .step-content {
-  padding: var(--space-lg);
+  padding: 0 var(--space-lg);
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-lg);
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--transition-normal), padding var(--transition-normal);
+}
+
+.step-content.expanded {
+  max-height: 5000px;
+  padding: var(--space-lg);
 }
 
 .step-explanation pre {

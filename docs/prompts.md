@@ -22,6 +22,9 @@
   - [Deploy Summary of Generated Features](#deploy-summary-of-generated-features)
   - [Custom Domain Setup Prompt](#custom-domain-setup-prompt)
   - [Custom Domain Setup Summary of Generated Features](#custom-domain-setup-summary-of-generated-features)
+- [Second Shot: with Auto in Cursor](#second-shot-with-auto-in-cursor)
+  - [UI Enhancement Consolidated Prompt](#ui-enhancement-consolidated-prompt)
+  - [UI Enhancement Summary of Generated Features](#ui-enhancement-summary-of-generated-features)
 
 <!-- /TOC -->
 This document consolidates the prompts used to generate the Tensor Logic educational web application.
@@ -703,3 +706,116 @@ The prompt above resulted in:
    - ✅ Secure script implementation (no command injection vulnerabilities)
    - ✅ Complete documentation with automation-first approach
    - ✅ Both URLs functional: custom domain and Shuttle URL
+
+---
+
+## Second Shot: with Auto in Cursor
+
+### UI Enhancement Consolidated Prompt
+
+> Enhance the Tensor Logic demo's user interface and example content to improve interactivity, readability, and alignment with the paper's notation.
+>
+> **Interactive Examples:**
+> - Make all examples interactive with collapsible step-by-step sections
+> - Add step navigation controls (Previous/Next buttons, step counter)
+> - Implement active step highlighting to show which step is currently being viewed
+> - Add keyboard navigation (Arrow Left/Right keys) for step navigation
+> - Steps should start collapsed except for the first step
+> - When clicking a sidebar link, scroll to the very beginning of the example (title and overview), not to the steps section
+>
+> **Symbolic Notation Improvements:**
+> - Make the Tensor Logic code more symbolic and mathematical, matching the notation style in the paper
+> - Use proper mathematical symbols: Σ (summation), σ (sigmoid), θ (threshold), · (multiplication)
+> - Use subscripts for indices (e.g., Σ_y, Σ_{x,y}) matching the paper's notation
+> - Preserve square brackets for tensor indices (e.g., T[x,y]) as used in the paper
+> - Check notation against `docs/2510.12269v3.pdf` to ensure consistency
+> - Fix any rendering issues with the code display (e.g., malformed HTML with equal signs and quotes)
+>
+> **Missing Example:**
+> - Add Graph Neural Network (GNN) example that is mentioned in the paper (Table 1) but missing from the app
+> - Use clean mathematical notation from the comments in the code file
+>
+> **Code Display Simplification:**
+> - After fixing notation issues, remove the "Tensor Logic Code" box entirely
+> - Users should rely on the step-by-step explanations which contain the notation
+>
+> **Example Code Updates:**
+> - Update all examples to use the clean mathematical notation from their code comments
+> - Follow the same pattern as the GNN example: concise, symbolic, matching the paper's style
+> - Examples to update: Logic Programming, MLP, Transformer, Multi-Head Attention, Kernel Machines, Bayesian Networks, HMM
+
+### UI Enhancement Summary of Generated Features
+
+The prompt above resulted in:
+
+1. **Interactive Step Navigation** (`src/main.ts`, `src/styles.css`)
+   - Collapsible step sections with toggle buttons (▶/▼ icons)
+   - Step navigation controls: Previous/Next buttons with step counter
+   - Active step highlighting with border and shadow effects
+   - Keyboard navigation: Arrow Left/Right keys for step navigation
+   - Steps start collapsed except for the first step (expanded by default)
+   - Smooth scrolling to active step when navigating
+   - CSS transitions for expand/collapse animations
+   - Step headers are clickable to toggle expansion
+
+2. **Symbolic Notation Implementation** (`src/main.ts`)
+   - Enhanced `highlightCode` function with proper mathematical notation:
+     - Σ (summation) with subscripts: Σ_y, Σ_{x,y}
+     - Greek letters: σ (sigmoid), θ (threshold)
+     - Middle dot (·) for multiplication
+     - Proper tensor indexing with square brackets: T[x,y]
+   - Fixed HTML rendering issues by processing operators only in text segments (not inside HTML tags)
+   - Prevents malformed HTML like `="="einsum">tensor">` by splitting code by HTML tags first
+   - Syntax highlighting for tensors, indices, operators, functions, and numbers
+
+3. **Graph Neural Network Example** (`src/tensor-logic/examples/gnn.ts`)
+   - New GNN example added to the application
+   - Implements basic GNN layer: `H'[v,d'] = Σ_u A[v,u] · H[u,d] · W[d,d']`
+   - Includes Graph Attention Networks (GAT) notation in comments
+   - Clean mathematical notation matching the paper's style
+   - Added to exports and example list in UI
+
+4. **Code Display Removal** (`src/main.ts`)
+   - Removed the entire "Tensor Logic Code" section from the UI
+   - Users now rely on step-by-step explanations which contain the notation
+   - Simplified UI focuses on interactive step navigation
+
+5. **Example Code Updates** (All example files)
+   - **Logic Programming** (`src/tensor-logic/examples/logic.ts`):
+     - Simplified to: `Ancestor[x,z] = Σ_y Parent[x,y] · Ancestor[y,z]`
+   - **MLP** (`src/tensor-logic/examples/mlp.ts`):
+     - Simplified to: `Output[x] = activation(Σ_y Weight[x,y] · Input[y] + Bias[x])`
+   - **MLP Batch** (`src/tensor-logic/examples/mlp.ts`):
+     - Simplified to: `Output[b,x] = activation(Σ_y Weight[x,y] · Input[b,y] + Bias[x])`
+   - **Transformer** (`src/tensor-logic/examples/transformer.ts`):
+     - Simplified to: `Attention[q,k] = softmax(Query[q,d] · Key[k,d] / √d)` and `Output[q,d'] = Attention[q,k] · Value[k,d']`
+   - **Multi-Head Attention** (`src/tensor-logic/examples/transformer.ts`):
+     - Simplified to: `MultiHead(Q,K,V) = concat(head_1, ..., head_h) · W^O`
+   - **Kernel Machines** (`src/tensor-logic/examples/kernel.ts`):
+     - Simplified to: `f(x) = Σ_i α_i · k(x_i, x)` with kernel examples
+   - **Bayesian Networks** (`src/tensor-logic/examples/graphical.ts`):
+     - Simplified to: `P(A,B,C) = ψ_AB(A,B) · ψ_BC(B,C) / Z` and `P(A) = Σ_B,C P(A,B,C)`
+   - **HMM** (`src/tensor-logic/examples/graphical.ts`):
+     - Updated to use proper Σ notation: `temp[s'] = Σ_s α[s] · A[s,s']` and `P(S_t|obs) = α_t / Σ_s α_t[s]`
+
+6. **Navigation Improvements** (`src/main.ts`)
+   - Sidebar links now scroll to the top of the example container (title and overview)
+   - Users see the explanation first before the step-by-step execution
+   - Smooth scrolling behavior with `scrollIntoView({ behavior: 'smooth', block: 'start' })`
+
+7. **CSS Enhancements** (`src/styles.css`)
+   - Added styles for interactive elements: `.steps-header`, `.step-controls`, `.step-nav-btn`, `.step-counter`
+   - Active step styling: `.step.active` with border and shadow
+   - Toggle button styling: `.step-toggle`, `.toggle-icon`
+   - Expand/collapse animations: `.step-content` with `max-height` transitions
+   - Symbolic notation styling: `.code-block .tensor`, `.code-block sub.index`
+
+8. **Key Achievements:**
+   - ✅ All examples now interactive with collapsible steps and navigation
+   - ✅ Clean mathematical notation matching the paper's style
+   - ✅ Graph Neural Network example added (9th example total)
+   - ✅ Simplified UI by removing redundant code display box
+   - ✅ All example code strings updated to concise symbolic notation
+   - ✅ Sidebar navigation scrolls to top of example for better UX
+   - ✅ Keyboard navigation for improved accessibility
+   - ✅ Smooth animations and transitions throughout

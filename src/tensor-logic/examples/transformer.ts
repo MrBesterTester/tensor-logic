@@ -363,27 +363,9 @@ This is analogous to logical inference:
 
 The difference: Transformers use SOFT matching (dot product + softmax)
 instead of Boolean unification, enabling gradient-based learning.`,
-    code: `// Self-Attention in Tensor Logic
-// Project inputs to Query, Key, Value
-Query[q,d] = Input[q,e] · Wq[e,d]    // "qe,ed->qd"
-Key[k,d] = Input[k,e] · Wk[e,d]      // "ke,ed->kd"
-Value[v,d] = Input[v,e] · Wv[e,d]    // "ve,ed->vd"
-
-// Compute attention scores (query-key similarity)
-Scores[q,k] = Query[q,d] · Key[k,d]  // "qd,kd->qk"
-ScaledScores[q,k] = Scores[q,k] / √d
-
-// Softmax to get attention distribution
-Weights[q,k] = softmax(ScaledScores, axis=k)
-
-// Weighted sum of values
-Output[q,d] = Weights[q,k] · Value[k,d]  // "qk,kd->qd"
-
-// Feed-forward network (per position)
-FFNOut[q,d] = ReLU(Output[q,e]·W1[e,h]) · W2[h,d]
-
-// Residual connection
-FinalOut[q,d] = Input[q,d] + FFNOut[q,d]`,
+    code: `// Self-attention computes:
+Attention[q,k] = softmax(Query[q,d] · Key[k,d] / √d)
+Output[q,d'] = Attention[q,k] · Value[k,d']`,
     steps,
   };
 }
@@ -538,19 +520,10 @@ Where each head_i = Attention(Q·W_i^Q, K·W_i^K, V·W_i^V)
 
 In Tensor Logic, multi-head is just running the same einsum pattern
 with different weight tensors, then concatenating along the embedding axis.`,
-    code: `// Multi-Head Attention in Tensor Logic
-// For each head h:
-Q_h[q,d] = Input[q,e] · Wq_h[e,d]
-K_h[k,d] = Input[k,e] · Wk_h[e,d]
-V_h[v,d] = Input[v,e] · Wv_h[e,d]
-
-Scores_h[q,k] = Q_h[q,d] · K_h[k,d] / √d_head
-Weights_h[q,k] = softmax(Scores_h)
-Head_h[q,d] = Weights_h[q,k] · V_h[k,d]
-
-// Concatenate heads and project
-MultiHead[q,e] = concat(Head_0, ..., Head_h)[q,e]
-Output[q,d] = MultiHead[q,e] · W_O[e,d]`,
+    code: `// Multi-Head Attention:
+// For each head: head_i = Attention(Q·W_i^Q, K·W_i^K, V·W_i^V)
+// Concatenate and project:
+MultiHead(Q,K,V) = concat(head_1, ..., head_h) · W^O`,
     steps,
   };
 }
