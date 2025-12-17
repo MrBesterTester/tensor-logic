@@ -6,7 +6,8 @@
 
 - [My Recent Background and Motivation for Tensor Logic](#my-recent-background-and-motivation-for-tensor-logic)
 - [What Happened with Cursor](#what-happened-with-cursor)
-  - [What's Really Wrong](#whats-really-wrong)
+  - [What was Difficult](#what-was-difficult)
+  - [What's Still Could Really Wrong](#whats-still-could-really-wrong)
   - [What's Good](#whats-good)
 - [Looking Forward](#looking-forward)
 
@@ -31,11 +32,13 @@ All told, I devote about 4 full days (Sunday thru Wednesday) to getting this dev
 - I spent about 2/3 of the time to infrastructure development issues rather than content issues, however. You can clearly see that in [prompts.md](prompts.md) and in the git commit history. Take a look at [README_dev.md](../README_dev.md) and you'll get a very clear idea of what a butt-load of work it is to bring a web app online (without using Lovable or Replit).
 
 It's important to clarify that this is a collection of **pre-computed examples**, not an interactive demo where users can run calculations themselves. The result is a static web page with a small Rust backend to satisfy the requirements of Shuttle.dev. It is not a dynamic one with a GPU-powered backend. This architecture makes performance considerations rather moot, since all computations are pre-worked. Nevertheless, a static page of pre-worked examples is a good start to minimize runtime cost and avoid the gnarly GPU programming
--  with all due respect to Modular's Mojo programming language, another one of the suggestions in [Performance-Options.md](Performance-Options.md)). For those interested in performance optimization for live calculations, I recommend reading [Performance-Options.md](Performance-Options.md), where the chatbot provided five good suggestions for getting the performance of live calculations, including a surprise one, WebGPU, which puts the onus of GPU computation on the user's computer rather than requiring server-side GPU infrastructure.
+-  with all due respect to Modular's Mojo programming language, one of the suggestions in [Performance-Options.md](Performance-Options.md). For those interested in performance optimization for live calculations, I recommend reading [Performance-Options.md](Performance-Options.md), where the chatbot provided five good suggestions for boosting the performance of live calculations, including a surprise one, WebGPU, which puts the onus of GPU computation on the user's computer rather than requiring server-side GPU infrastructure.
+
+### What was Difficult
 
 It was difficult to get Cursor to adopt even the notation of Tensor Logic given in the paper. It started out with tidy little Tensor Logic Code boxes but somehow they devolved into an almost alien-like, ASCII notation. (It used regexp's and I think my switch to self-hosted fonts for alleged security issues may have unduly constrained it.) And I'm not really certain that it got it quite right, though it seems to have come close. I wound up deleting the Tensor Logic Code boxes. 😨
 
-### What's Really Wrong
+### What's Still Could Really Wrong
 
 Most especially, instead of the formulas for examples in that paper, Opus used it's own knowledge of Tensors, einsums and general ML and created formulas for those examples  in its own way. This makes a simple comparison between the examples the the web app and what's in the paper exceedingly difficult for a novice in ML such as myself. I can't say that it's formulas are wrong, but I certainly can't tell straightforwardly if they're right with a simple comparison to Prof. Domingos' paper. 
 - I couldn't help but notice how quickly the initial examples were generated. As noted in the main [README.md](../README.md) file, more work is needed to validate (or invalidate) the examples by comparing those computations with other established software implementation of the specific ML examples. Again, LLMs can be our friend here. But not now as I'm out of time. 🤨
