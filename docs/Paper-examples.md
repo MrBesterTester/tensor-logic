@@ -10,13 +10,13 @@ From: Domingos, P. (2025). *Tensor Logic: The Language of AI*. [arXiv:2510.12269
   - [Notes](#notes)
 - [Components of Graphical Models in Tensor Logic (Table 3)](#components-of-graphical-models-in-tensor-logic-table-3)
   - [Notes](#notes)
-    - [Bayesian Network Example](#bayesian-network-example)
+- [Bayesian Network Example](#bayesian-network-example)
 
 <!-- /TOC -->
 
 ---
 
-# Graph Neural Networks in Tensor Logic (Table 1)
+## Graph Neural Networks in Tensor Logic (Table 1)
 
 | Component | Equation |
 |-----------|----------|
@@ -29,7 +29,7 @@ From: Domingos, P. (2025). *Tensor Logic: The Language of AI*. [arXiv:2510.12269
 | **Edge prediction** | `Y[n, n′] = sig(Emb[n, L, d] Emb[n′, L, d])` |
 | **Graph classification** | `Y = sig(WOut[d] Emb[n, L, d])` |
 
-## Notes
+### Notes
 
 - `Neig(x, y)` is a relation (or Boolean tensor) defining the graph structure, with one fact for each adjacent pair
 - `Emb[n, l, d]` contains the d-dimensional embedding of each node n in each layer l
@@ -41,7 +41,7 @@ From: Domingos, P. (2025). *Tensor Logic: The Language of AI*. [arXiv:2510.12269
 
 ---
 
-# Transformers in Tensor Logic (Table 2)
+## Transformers in Tensor Logic (Table 2)
 
 | Component | Equation(s) |
 |-----------|-------------|
@@ -54,7 +54,7 @@ From: Domingos, P. (2025). *Tensor Logic: The Language of AI*. [arXiv:2510.12269
 | **MLP** | `MLP[b, p] = relu(WP[p, d] Stream[b, p, d]), etc.` |
 | **Output** | `Y[p, t] = softmax(WO[t, d] Stream[B, p, d])` |
 
-## Notes
+### Notes
 
 - `X(p, t)` is a relation stating that the pth position in the text contains the tth token
 - `EmbX[p, d]` is the text's embedding matrix
@@ -71,7 +71,7 @@ From: Domingos, P. (2025). *Tensor Logic: The Language of AI*. [arXiv:2510.12269
 
 ---
 
-# Components of Graphical Models in Tensor Logic (Table 3)
+## Components of Graphical Models in Tensor Logic (Table 3)
 
 | Component | Implementation in Tensor Logic |
 |-----------|-------------------------------|
@@ -83,7 +83,7 @@ From: Domingos, P. (2025). *Tensor Logic: The Language of AI*. [arXiv:2510.12269
 | **Belief propagation** | Forward chaining (iterative equation application until fixpoint) |
 | **Sampling** | Backward chaining with selective projection (random subset of terms) |
 
-## Notes
+### Notes
 
 - A **factor** `ϕ[x₁, x₂, ..., xₙ]` is a tensor of non-negative real values, with one index per variable and one value of the index per value of the variable. The unnormalized probability of a state x is the product of the element in each tensor corresponding to x.
 
@@ -99,7 +99,7 @@ From: Domingos, P. (2025). *Tensor Logic: The Language of AI*. [arXiv:2510.12269
 
 - **Sampling** can be implemented by backward chaining with selective projection, i.e., replacing a projection by a random subset of its terms. In backward chaining, each tensor equation is treated as a function, with the query as the top-level call.
 
-### Bayesian Network Example
+## Bayesian Network Example
 
 A Bayesian network can be encoded in tensor logic using one equation per variable:
 ```

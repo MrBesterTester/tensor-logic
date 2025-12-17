@@ -47,11 +47,13 @@ function generateTOC(content: string): string {
   const relevantHeadings = headings.slice(1);
   
   // Generate TOC entries
-  // H1s have no indent, H2s have 2 spaces indent, H3s have 4 spaces indent
+  // H1s have no indent, H2s have no indent (backward compatible), H3s have 2 spaces indent (backward compatible)
   relevantHeadings.forEach((heading: Heading): void => {
-    const indent = '  '.repeat(Math.max(0, heading.level - 1));
+    // H1: 0 spaces, H2: 0 spaces, H3: 2 spaces (maintains backward compatibility)
+    const indent = heading.level === 1 ? 0 : heading.level - 2;
+    const indentSpaces = '  '.repeat(Math.max(0, indent));
     const link = `#${slugify(heading.text)}`;
-    toc.push(`${indent}- [${heading.text}](${link})`);
+    toc.push(`${indentSpaces}- [${heading.text}](${link})`);
   });
   
   return toc.join('\n');
