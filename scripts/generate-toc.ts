@@ -42,15 +42,15 @@ function generateTOC(content: string): string {
     }
   });
   
-  // Skip the first H1 (usually the title)
-  // Include all subsequent H1, H2, and H3 headings in the TOC
-  const relevantHeadings = headings.slice(1);
+  // Skip the first H1 (usually the title) and filter out any remaining H1s
+  // Only include H2 and H3 headings in the TOC (maintains backward compatibility)
+  const relevantHeadings = headings.slice(1).filter((h: Heading): boolean => h.level >= 2);
   
   // Generate TOC entries
-  // H1s have no indent, H2s have no indent (backward compatible), H3s have 2 spaces indent (backward compatible)
+  // H2s have no indent, H3s have 2 spaces indent (backward compatible)
   relevantHeadings.forEach((heading: Heading): void => {
-    // H1: 0 spaces, H2: 0 spaces, H3: 2 spaces (maintains backward compatibility)
-    const indent = heading.level === 1 ? 0 : heading.level - 2;
+    // H2: 0 spaces, H3: 2 spaces (maintains backward compatibility)
+    const indent = heading.level - 2;
     const indentSpaces = '  '.repeat(Math.max(0, indent));
     const link = `#${slugify(heading.text)}`;
     toc.push(`${indentSpaces}- [${heading.text}](${link})`);
