@@ -1,4 +1,4 @@
-# Paper Examples: Tensor Logic Implementation Tables
+# Paper Examples: Tensor Logic Implementation
 
 From: Domingos, P. (2025). *Tensor Logic: The Language of AI*. [arXiv:2510.12269](https://arxiv.org/abs/2510.12269)
 
