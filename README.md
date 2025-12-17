@@ -8,7 +8,7 @@ An interactive educational demo of **Pedro Domingos' Tensor Logic** — a progra
 
 Based on the paper: [Tensor Logic: The Language of AI](https://arxiv.org/abs/2510.12269) by Prof. Emeritus Pedro Domingos (University of Washington)
 
-And inspired by Dr. Tim Scarfe's 2 minute demo (with co-host Dr. Keith Duggar) on the interview of Prof. Domingos on Machine Learning Street Talk's YouTube channel: [Tensor Logic "Unifies" AI Paradigms - Pedro Domingos](https://youtu.be/4APMGvicmxY?si=T0ic6RgZ-epTPBMt&t=1070)
+And inspired by Dr. Tim Scarfe's 2-minute demo (with co-host Dr. Keith Duggar) on the interview of Prof. Domingos in Machine Learning Street Talk's YouTube channel: [Tensor Logic "Unifies" AI Paradigms - Pedro Domingos](https://youtu.be/4APMGvicmxY?si=T0ic6RgZ-epTPBMt&t=1070)
 
 ![Tensor Logic Demo Screenshot](Screen%20Shot%202025-12-16%20at%2019.48.31.png)
 
