@@ -232,7 +232,7 @@ function setupStepInteractivity(totalSteps: number): void {
   function updateStepNavigation() {
     if (prevBtn) prevBtn.disabled = currentStepIndex === 0;
     if (nextBtn) nextBtn.disabled = currentStepIndex >= totalSteps - 1;
-    if (currentStepSpan) currentStepSpan.textContent = String(currentStepIndex);
+    if (currentStepSpan) currentStepSpan.textContent = String(currentStepIndex + 1);
 
     // Update active step
     document.querySelectorAll('.step').forEach((step) => {
