@@ -110,40 +110,59 @@ function renderExample(example: Example): void {
     hybrid: '#95e1d3',
   };
 
+  const totalSteps = result.steps.length + 1; // +1 for Overview step
+
   mainContent.innerHTML = `
     <article class="example-container">
-      <header class="example-header">
+      <header class="example-header" style="display: none;">
         <span class="category-badge" style="background: ${categoryColors[example.category]}">${example.category}</span>
         <h1>${escapeHtml(result.title)}</h1>
       </header>
       
-      <section class="description-section">
-        <h2>Overview</h2>
-        <pre class="description">${escapeHtml(result.description)}</pre>
-      </section>
-      
       <section class="steps-section">
         <div class="steps-header">
-          <h2>Step-by-Step Execution</h2>
-          <div class="step-controls">
-            <button class="step-nav-btn" id="prev-step" disabled>← Previous</button>
-            <span class="step-counter">Step <span id="current-step">1</span> of ${result.steps.length}</span>
-            <button class="step-nav-btn" id="next-step" ${result.steps.length <= 1 ? 'disabled' : ''}>Next →</button>
+          <div class="steps-header-top">
+            <span class="category-badge" style="background: ${categoryColors[example.category]}">${example.category}</span>
+            <h1 class="example-title-fixed">${escapeHtml(result.title)}</h1>
+          </div>
+          <div class="steps-header-bottom">
+            <h2>Step-by-Step Execution</h2>
+            <div class="step-controls">
+              <button class="step-nav-btn" id="prev-step" disabled>← Previous</button>
+              <span class="step-counter">Step <span id="current-step">0</span> of ${totalSteps - 1}</span>
+              <button class="step-nav-btn" id="next-step" ${totalSteps <= 1 ? 'disabled' : ''}>Next →</button>
+            </div>
           </div>
         </div>
         <div class="steps-container">
+          <!-- Step 0: Overview -->
+          <div class="step active" data-step="0">
+            <div class="step-header" data-step-toggle="0">
+              <span class="step-number">0</span>
+              <h3>Overview</h3>
+              <button class="step-toggle" aria-label="Toggle step 0">
+                <span class="toggle-icon">▼</span>
+              </button>
+            </div>
+            <div class="step-content expanded">
+              <div class="step-explanation">
+                <pre>${escapeHtml(result.description)}</pre>
+              </div>
+            </div>
+          </div>
+          
           ${result.steps
             .map(
               (step, i) => `
-            <div class="step ${i === 0 ? 'active' : ''}" data-step="${i}">
-              <div class="step-header" data-step-toggle="${i}">
+            <div class="step" data-step="${i + 1}">
+              <div class="step-header" data-step-toggle="${i + 1}">
                 <span class="step-number">${i + 1}</span>
                 <h3>${escapeHtml(step.name)}</h3>
                 <button class="step-toggle" aria-label="Toggle step ${i + 1}">
-                  <span class="toggle-icon">${i === 0 ? '▼' : '▶'}</span>
+                  <span class="toggle-icon">▶</span>
                 </button>
               </div>
-              <div class="step-content ${i === 0 ? 'expanded' : ''}">
+              <div class="step-content">
                 <div class="step-explanation">
                   <pre>${escapeHtml(step.explanation)}</pre>
                 </div>
@@ -162,7 +181,7 @@ function renderExample(example: Example): void {
   `;
 
   // Add interactive functionality
-  setupStepInteractivity(result.steps.length);
+  setupStepInteractivity(totalSteps);
   
   // Scroll to the top of the example container so user sees the title and overview
   const exampleContainer = mainContent.querySelector('.example-container');
@@ -213,11 +232,12 @@ function setupStepInteractivity(totalSteps: number): void {
   function updateStepNavigation() {
     if (prevBtn) prevBtn.disabled = currentStepIndex === 0;
     if (nextBtn) nextBtn.disabled = currentStepIndex >= totalSteps - 1;
-    if (currentStepSpan) currentStepSpan.textContent = String(currentStepIndex + 1);
+    if (currentStepSpan) currentStepSpan.textContent = String(currentStepIndex);
 
     // Update active step
-    document.querySelectorAll('.step').forEach((step, i) => {
-      if (i === currentStepIndex) {
+    document.querySelectorAll('.step').forEach((step) => {
+      const stepIndex = parseInt(step.getAttribute('data-step') || '0');
+      if (stepIndex === currentStepIndex) {
         step.classList.add('active');
         const content = step.querySelector('.step-content');
         if (content) {
@@ -225,8 +245,55 @@ function setupStepInteractivity(totalSteps: number): void {
           const toggleIcon = step.querySelector('.toggle-icon');
           if (toggleIcon) toggleIcon.textContent = '▼';
         }
-        // Scroll to active step
-        step.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // Scroll to active step - position at top of scrollable area (just below fixed header)
+        const headerHeight = 140; // Match padding-top in CSS (title + controls)
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+          const stepElement = step;
+          
+          // Function to calculate and perform scroll
+          const performScroll = () => {
+            if (!stepElement || !stepElement.classList.contains('active')) {
+              return;
+            }
+            
+            const stepsContainer = stepElement.closest('.steps-container');
+            if (!stepsContainer) {
+              return;
+            }
+            
+            // Get current positions after all layout changes
+            const stepRect = stepElement.getBoundingClientRect();
+            const mainContentRect = mainContent.getBoundingClientRect();
+            const containerRect = stepsContainer.getBoundingClientRect();
+            
+            // Calculate step's position relative to steps-container
+            const stepOffsetFromContainer = stepRect.top - containerRect.top;
+            
+            // Calculate container's position relative to main-content  
+            const containerOffsetFromMain = containerRect.top - mainContentRect.top;
+            
+            // Calculate absolute position in scroll container
+            const stepAbsoluteTop = mainContent.scrollTop + containerOffsetFromMain + stepOffsetFromContainer;
+            
+            // Target: step should be at headerHeight from viewport top
+            // The step's top edge should align with the top of the scrollable area (just below fixed header)
+            const targetScroll = Math.max(0, stepAbsoluteTop - headerHeight);
+            
+            mainContent.scrollTo({
+              top: targetScroll,
+              behavior: 'smooth'
+            });
+          };
+          
+          // Always scroll, even if already on the step (to ensure correct position)
+          // Wait for all step transitions to complete (250ms transition + buffer for all steps)
+          // We need to wait for both the expanding step AND any collapsing steps
+          const transitionDuration = 250; // From CSS --transition-normal
+          const waitTime = transitionDuration + 150; // Extra buffer for multiple steps
+          
+          setTimeout(performScroll, waitTime);
+        }
       } else {
         step.classList.remove('active');
         // Bug fix: Remove expanded class and update icon for inactive steps
@@ -326,6 +393,80 @@ function renderNav(): void {
     });
   });
 }
+
+/**
+ * Test function to verify scroll behavior
+ * Call this from browser console: window.testStepScroll(stepIndex)
+ */
+(window as any).testStepScroll = (stepIndex: number) => {
+  const mainContent = document.getElementById('main-content');
+  if (!mainContent) {
+    console.error('main-content not found');
+    return;
+  }
+  
+  const step = document.querySelector(`.step[data-step="${stepIndex}"]`) as HTMLElement;
+  if (!step) {
+    console.error(`Step ${stepIndex} not found`);
+    return;
+  }
+  
+  const headerHeight = 140;
+  const stepsContainer = step.closest('.steps-container');
+  if (!stepsContainer) {
+    console.error('steps-container not found');
+    return;
+  }
+  
+  // Force step to be active and expanded
+  step.classList.add('active');
+  const content = step.querySelector('.step-content');
+  if (content) {
+    content.classList.add('expanded');
+  }
+  
+  // Wait for layout
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const stepRect = step.getBoundingClientRect();
+      const mainContentRect = mainContent.getBoundingClientRect();
+      const containerRect = stepsContainer.getBoundingClientRect();
+      
+      const stepOffsetFromContainer = stepRect.top - containerRect.top;
+      const containerOffsetFromMain = containerRect.top - mainContentRect.top;
+      const stepAbsoluteTop = mainContent.scrollTop + containerOffsetFromMain + stepOffsetFromContainer;
+      const targetScroll = Math.max(0, stepAbsoluteTop - headerHeight);
+      
+      console.log('Test scroll calculation:', {
+        stepIndex,
+        stepAbsoluteTop: stepAbsoluteTop.toFixed(1),
+        currentScrollTop: mainContent.scrollTop.toFixed(1),
+        targetScroll: targetScroll.toFixed(1),
+        stepRectTop: stepRect.top.toFixed(1),
+        headerHeight
+      });
+      
+      mainContent.scrollTo({
+        top: targetScroll,
+        behavior: 'smooth'
+      });
+      
+      // Verify after scroll
+      setTimeout(() => {
+        const newStepRect = step.getBoundingClientRect();
+        const newMainContentRect = mainContent.getBoundingClientRect();
+        const actualTop = newStepRect.top - newMainContentRect.top;
+        const error = Math.abs(actualTop - headerHeight);
+        console.log('Scroll result:', {
+          expectedTop: headerHeight,
+          actualTop: actualTop.toFixed(1),
+          error: error.toFixed(1) + 'px',
+          success: error < 10
+        });
+      }, 600);
+    });
+  });
+};
 
 function renderIntro(): void {
   const mainContent = document.getElementById('main-content');
