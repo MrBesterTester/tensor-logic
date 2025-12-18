@@ -90,9 +90,11 @@ async function testStepScroll(
   }, stepIndex);
 
   // Click the next/previous button to navigate to this step
+  // Note: UI displays 1-based step numbers (1, 2, 3...), but stepIndex is 0-based (0, 1, 2...)
   const currentStep = await page.evaluate(() => {
     const span = document.getElementById('current-step');
-    return span ? parseInt(span.textContent || '0') : 0;
+    // Convert 1-based UI value to 0-based index
+    return span ? parseInt(span.textContent || '0') - 1 : 0;
   });
 
   if (currentStep !== stepIndex) {

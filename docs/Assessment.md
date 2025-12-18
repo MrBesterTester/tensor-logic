@@ -9,6 +9,7 @@
   - [What was Difficult](#what-was-difficult)
   - [What's Was Really Wrong](#whats-was-really-wrong)
   - [What's Good](#whats-good)
+  - [What's Really Good](#whats-really-good)
 - [Looking Forward](#looking-forward)
 
 <!-- /TOC -->
@@ -43,16 +44,20 @@ It was difficult to get Cursor to adopt even the notation of Tensor Logic given 
 Most especially, instead of the formulas for examples in that paper, Opus used it's own knowledge of Tensors, einsums and general ML and chose to create formulas for those examples in its own way. This makes a simple comparison between the examples the the web app and what's in the paper exceedingly difficult for a novice in ML such as myself. I can't say that it's formulas were wrong, but I certainly can't tell straightforwardly if they're right with a simple comparison to Prof. Domingos' paper. 
 - I couldn't help but notice how quickly the initial examples were generated. 
 
-So to fix this I sat down and gave Prof. Domingos' paper a good, old-fashioned read with yellow high-lighter and a fine, blue gel-point pen, initially focusing on the juicy hunks of Tensor Logic code Tables 1, 2 and 3, but collecting about a couple of dozen or so other tid-bits of concepts, methods and small examples of Tensor Logic code. Then I asked the chatbot in the retrospective chat to slowly build up, example by example, by reading that paper and put its findings for each example in [Paper-examples.md](Paper-examples.md). I could immediately tell it was on the right track. 
+So to fix this I sat down and gave Prof. Domingos' paper a good, old-fashioned read with yellow high-lighter and a fine, blue gel-point pen, initially focusing on the juicy hunks of Tensor Logic code Tables 1, 2 and 3, but collecting about a couple of dozen or so other tid-bits of concepts, methods and small examples of Tensor Logic code. Then I asked the chatbot in the retrospective chat to slowly build up, example by example, by reading that paper and put its findings for each of those items I called out, putting the results in [Paper-examples.md](Paper-examples.md). I could immediately tell it was on the right track. 
 - This not only nailed down the precious notation but also curated many different examples. Thus, I was able to use that as a kind of RAG basis to get the chatbot to fix the examples in the web app so they looked like Prof. Domingos could have written them.
 - Of course, further verification work still needs to be done to be sure they're right!
 
 ### What's Good
-The fold-out UI in each of the examples in the web app is nice because you can separately conceal or reveal each step of the computation separately. As a program, Tensor Logic allows for concise, elegant psuedo-code in the examples. The fold-out UI works quite smoothly showing you the details, once step at a time, if you use the Next and Previous navigation buttons provided in each of the examples.
+The fold-out UI in each of the examples in the web app is nice because you can separately conceal or reveal each step of the computation separately. As a program, Tensor Logic allows for concise, elegant psuedo-code in the examples. The fold-out UI works quite smoothly showing you the details, once step at a time, if you use the Next and Previous navigation buttons provided in each of the examples. The UI is still not as slick as I would like it.
+
+### What's Really Good
+
+The Review Agent in Cursor is really good. It's ability to catch nasty bugs and fix them without testing is fantastic.
 
 ## Looking Forward
 
-I do believe that an MCP server for Tensor Logic or a compiler or interpreter for Tensor Logic with good Language Server Protocol (LSP) like the one for Rust would be very beneficial to generating examples for Tensor Logic using Cursor. 😮
+I do believe that an MCP server for Tensor Logic or a compiler or interpreter for Tensor Logic with a good Language Server Protocol (LSP) like the one for Rust would be very beneficial to generating examples for Tensor Logic using Cursor. 😮
 
 So I do hope that Prof. Domingos and his cadre of students working on Tensor Logic gain some insight in how (and how not) to do examples of Tensor Logic as a web app. And that those jolly good guys, Tim and Keith, at Machine Learning Street Talk (MLST) keep up their good work and soon invite Prof. Domingos back again for yet another round of interview. ❤️
 
