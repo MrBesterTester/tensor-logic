@@ -26,10 +26,10 @@ Indeed everything that Prof. Domingos has done in career in ML since the late 90
 ## What Happened with Cursor
 
 So I started off "big" with Opus 4.5 in Cursor.  Clearly it got the gist of Domingos' paper about the einsum allowing unification.  However, due to cost constraints (I have a $20/mo subscription and didn't feel like upgrading to the $60/mo plan), I had to switch from Opus 4.5 to Auto mode in Cursor. 
-- You can see this clearly in [prompts.md](prompts.md).
+- You can see this clearly in [Prompts.md](Prompts.md).
 
 All told, I devote about 4 full days (Sunday thru Wednesday) to getting this development in Cursor done.
-- I spent about 2/3 of the time to infrastructure development issues rather than content issues, however. You can clearly see that in [prompts.md](prompts.md) and in the git commit history. Take a look at [README_dev.md](../README_dev.md) and you'll get a very clear idea of what a butt-load of work it is to bring a web app online (without using Lovable or Replit).
+- I spent about 2/3 of the time to infrastructure development issues rather than content issues, however. You can clearly see that in [Prompts.md](Prompts.md) and in the git commit history. Take a look at [README_dev.md](../README_dev.md) and you'll get a very clear idea of what a butt-load of work it is to bring a web app online (without using Lovable or Replit).
 
 It's important to clarify that this is a collection of **pre-computed examples**, not an interactive demo where users can run calculations themselves. The result is a static web page with a small Rust backend to satisfy the requirements of Shuttle.dev. It is not a dynamic one with a GPU-powered backend. This architecture makes performance considerations rather moot, since all computations are pre-worked. Nevertheless, a static page of pre-worked examples is a good start to minimize runtime cost and avoid the gnarly GPU programming
 -  with all due respect to Modular's Mojo programming language, one of the suggestions in [Performance-Options.md](Performance-Options.md). For those interested in performance optimization for live calculations, I recommend reading [Performance-Options.md](Performance-Options.md), where the chatbot provided five good suggestions for boosting the performance of live calculations, including a surprise one, WebGPU, which puts the onus of GPU computation on the user's computer rather than requiring server-side GPU infrastructure.

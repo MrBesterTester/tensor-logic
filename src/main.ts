@@ -475,7 +475,7 @@ function renderIntro(): void {
   mainContent.innerHTML = `
     <article class="intro-container">
       <header class="intro-header">
-        <h1>Tensor Logic Examples using Cursor</h1>
+        <h1>Tensor Logic Examples</h1>
         <p class="subtitle">The Language of AI</p>
         <p class="author">Based on <a href="https://arxiv.org/pdf/2510.12269" target="_blank" rel="noopener">Tensor Logic: The Language of AI</a> by Prof. Emeritus Pedro Domingos (University of Washington)</p>
         <p class="author">And inspired by Dr. Tim Scarfe's 2-minute demo on the interview of Prof. Domingos in Machine Learning Street Talk's YouTube channel: <a href="https://youtu.be/4APMGvicmxY?si=T0ic6RgZ-epTPBMt&t=1070" target="_blank" rel="noopener">Tensor Logic "Unifies" AI Paradigms - Pedro Domingos</a></p>

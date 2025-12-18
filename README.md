@@ -1,6 +1,6 @@
 <div align="center">
 
-# Tensor Logic Examples using Cursor
+# Tensor Logic Examples
 
 </div>
 

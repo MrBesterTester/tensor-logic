@@ -5,7 +5,7 @@
 - [Quick Navigation](#quick-navigation)
 - [Files](#files)
   - [2510.12269v3.pdf](#251012269v3pdf)
-  - [prompts.md](#promptsmd)
+  - [Prompts.md](#promptsmd)
   - [Performance-Options.md](#performance-optionsmd)
   - [CI_CD.md](#ci_cdmd)
   - [SECURITY_AUDIT.md](#security_auditmd)
@@ -18,7 +18,7 @@ This directory contains documentation, research materials, and development notes
 ## Quick Navigation
 
 - **Need the theoretical foundation?** → Read [2510.12269v3.pdf](./2510.12269v3.pdf)
-- **Understanding the project origin?** → See [prompts.md](./prompts.md)
+- **Understanding the project origin?** → See [Prompts.md](./Prompts.md)
 - **Want to optimize performance?** → Start with [Performance-Options.md](./Performance-Options.md)
 - **Setting up CI/CD or deploying?** → See [CI_CD.md](./CI_CD.md)
 - **Security concerns?** → Review [SECURITY_AUDIT.md](./SECURITY_AUDIT.md)
@@ -50,11 +50,11 @@ This paper is the primary source material for understanding Tensor Logic theory 
 
 ---
 
-### prompts.md
+### Prompts.md
 
 **Development prompts and feature summary** (2.4KB, 57 lines)
 
-See: [`prompts.md`](./prompts.md)
+See: [`Prompts.md`](./Prompts.md)
 
 Documents the original prompts used to generate the Tensor Logic educational web application. Includes:
 
