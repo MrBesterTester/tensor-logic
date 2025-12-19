@@ -25,6 +25,13 @@
 - [Second Shot: with Auto in Cursor](#second-shot-with-auto-in-cursor)
   - [UI Enhancement Consolidated Prompt](#ui-enhancement-consolidated-prompt)
   - [UI Enhancement Summary of Generated Features](#ui-enhancement-summary-of-generated-features)
+- [GitHub Repo Protection when Inviting Others to Contribute](#github-repo-protection-when-inviting-others-to-contribute)
+  - [Understanding Branch Protection](#understanding-branch-protection)
+  - [For Solo Development](#for-solo-development)
+  - [When You Need Protection](#when-you-need-protection)
+  - [Recommended Protection Settings](#recommended-protection-settings)
+  - [Understanding "Pull Request" Terminology](#understanding-pull-request-terminology)
+  - [Bottom Line](#bottom-line)
 
 <!-- /TOC -->
 This document consolidates the prompts used to generate the Tensor Logic educational web application.
@@ -819,3 +826,93 @@ The prompt above resulted in:
    - ✅ Sidebar navigation scrolls to top of example for better UX
    - ✅ Keyboard navigation for improved accessibility
    - ✅ Smooth animations and transitions throughout
+
+---
+
+## GitHub Repo Protection when Inviting Others to Contribute
+
+### Understanding Branch Protection
+
+GitHub's branch protection is a **configuration setting**, not a code change. It doesn't modify your repository code and won't require you to pull before pushing. It only affects:
+- Whether you can push directly (if PRs are required)
+- Whether PRs can be merged (if checks fail)
+
+### For Solo Development
+
+**For a truly solo developer, branch protection is optional.** You can safely ignore GitHub's "Your main branch isn't protected" warning if you're the only contributor.
+
+Branch protection becomes important when:
+- You have collaborators submitting pull requests
+- You want safeguards against accidental force pushes
+- You want to enforce CI checks before merging PRs
+
+### When You Need Protection
+
+Enable branch protection when:
+1. **Others start contributing**: Require PR reviews, status checks, and up-to-date branches
+2. **You want safeguards**: Prevent accidental force pushes or deletion of the main branch
+3. **You want to enforce CI**: Ensure tests pass before merging (even your own PRs)
+
+### Recommended Protection Settings
+
+For a project that will have collaborators, here are practical options:
+
+#### Option 1: Minimal Protection (for direct push workflow)
+
+If you want to keep direct pushes to main while adding basic safeguards:
+
+1. **"Require a pull request before merging"** — Leave this OFF (or enable but allow admins to bypass)
+2. **"Require status checks to pass before merging"** — Enable only if you have CI/CD checks
+3. **"Require branches to be up to date before merging"** — Only affects PRs, not direct pushes
+4. **"Include administrators"** — Enable if you want protection to apply to you too
+
+#### Option 2: Full Protection (for collaborative workflow)
+
+When you have active contributors:
+
+1. **"Require a pull request before merging"** — Enable
+   - Require approvals: 1 (or more)
+   - Dismiss stale pull request approvals when new commits are pushed
+2. **"Require status checks to pass before merging"** — Enable
+   - Select your CI/CD checks (e.g., "build", "test", "lint")
+3. **"Require branches to be up to date before merging"** — Enable
+   - Ensures PRs are based on latest main branch
+4. **"Include administrators"** — Enable
+   - Applies rules to admins (you) as well
+5. **"Do not allow bypassing the above settings"** — Enable
+   - Prevents anyone from bypassing protection rules
+
+### Understanding "Pull Request" Terminology
+
+**Why "Pull Request" and not "Push Request"?**
+
+The terminology comes from the repository owner's perspective, not the contributor's:
+
+1. **Contributor** (someone else):
+   - Creates a branch
+   - Makes commits
+   - **Pushes** to their fork or branch
+   - Creates a **Pull Request** = "Please **pull** my changes into your repo"
+
+2. **Repository Owner** (you):
+   - Reviews the PR
+   - **Pulls** (merges) the changes into the main branch
+   - The merge happens via a push to main (by GitHub or you)
+
+The term comes from Git's distributed nature: you **pull** changes from another repository into yours. A "pull request" asks: "Please pull my changes from my branch/fork into your repository."
+
+**The Flow:**
+- The contributor **pushes** their code to GitHub
+- They create a **pull request** (asking you to pull)
+- You (or GitHub) **merge** it (which internally does a push to main)
+
+So "pull request" is from the owner's perspective: you're being asked to pull their changes in. It's a request to pull, not a request to push.
+
+### Bottom Line
+
+For a solo project, you can ignore the warning. Enable protection when:
+1. You add collaborators
+2. You want to prevent accidental destructive actions
+3. You want to enforce CI/CD checks
+
+The warning is informational, not required. Many solo developers skip it until they have collaborators.
