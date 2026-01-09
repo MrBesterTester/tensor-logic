@@ -12,14 +12,14 @@
   - [Scripts](#scripts)
 - [Project Structure](#project-structure)
   - [Frontend (TypeScript/Vite)](#frontend-typescript-vite)
-  - [Backend (Rust/Shuttle)](#backend-rust-shuttle)
+  - [Backend (Rust/Shuttle) - Legacy](#backend-rust-shuttle-legacy)
   - [Examples](#examples)
 - [Build Configuration](#build-configuration)
   - [Vite Configuration (`vite.config.ts`)](#vite-configuration-viteconfigts)
   - [TypeScript Configuration](#typescript-configuration)
 - [Fonts](#fonts)
 - [Deployment](#deployment)
-  - [Shuttle.dev Deployment](#shuttledev-deployment)
+  - [Replit Deployment](#replit-deployment)
   - [Build Timestamp](#build-timestamp)
 - [Additional Resources](#additional-resources)
 
@@ -45,7 +45,7 @@ This documentation index will help you understand the project's theoretical foun
 
 - **Node.js 18+** (see [`docs/Versions.md`](./docs/Versions.md) for specific version)
 - **npm** (see [`docs/Versions.md`](./docs/Versions.md) for specific version)
-- **Rust** (for backend deployment to Shuttle.dev - optional for local development)
+- **Rust** (optional - backend code is legacy, kept for reference)
 
 ### Installation
 
@@ -77,7 +77,7 @@ npm run build
 This will:
 1. Type-check the TypeScript code (`tsc`)
 2. Build the Vite bundle
-3. Output to `backend/tensor-logic/dist/` (for Shuttle deployment)
+3. Output to `backend/tensor-logic/dist/` (for deployment)
 4. Generate a build timestamp in PST/PDT format (YYYY-MM-DD_HH:MM)
 
 The build timestamp is embedded as `__BUILD_TIME__` and displayed in the app footer.
@@ -148,26 +148,22 @@ tensor-logic/
 └── vite.config.ts          # Vite configuration
 ```
 
-### Backend (Rust/Shuttle)
+### Backend (Rust/Shuttle) - Legacy
 
 ```
 backend/tensor-logic/
 ├── src/
 │   └── main.rs             # Axum server (serves static files)
 ├── Cargo.toml              # Rust dependencies
-├── Shuttle.toml            # Shuttle deployment config
+├── Shuttle.toml            # Shuttle deployment config (legacy)
 └── dist/                   # Built frontend (from npm run build)
     ├── index.html
     └── assets/             # JS, CSS, fonts
 ```
 
-The backend is a simple Rust/Axum server that:
-- Serves static files from `dist/`
-- Provides SPA fallback (all routes serve `index.html`)
-- Handles asset serving from `/assets/`
-- Designed for deployment on Shuttle.dev
+The backend was a simple Rust/Axum server that served static files. This is now **legacy code** kept for reference. The project is currently deployed to **Replit** which handles static site hosting directly.
 
-**Note**: For local development, you only need the frontend. The backend is only required for deployment.
+**Note**: For local development, you only need the frontend. The backend code is not required for deployment to Replit.
 
 ### Examples
 
@@ -189,7 +185,7 @@ Each example demonstrates how Tensor Logic unifies different AI paradigms throug
 ### Vite Configuration (`vite.config.ts`)
 
 - **Root**: `src/` (Vite serves from this directory)
-- **Build Output**: `../backend/tensor-logic/dist/` (for Shuttle deployment)
+- **Build Output**: `../backend/tensor-logic/dist/` (for deployment)
 - **Dev Server**: Port 3000, auto-opens browser
 - **Build Timestamp**: Generated in PST/PDT timezone, embedded as `__BUILD_TIME__`
 
@@ -212,18 +208,18 @@ See [`src/fonts/README.md`](./src/fonts/README.md) for download instructions if 
 
 ## Deployment
 
-### Shuttle.dev Deployment
+### Replit Deployment
 
-The project is configured for deployment on [Shuttle.dev](https://shuttle.rs):
+The project is configured for deployment on [Replit.com](https://replit.com):
 
 1. **Build frontend**: `npm run build` (outputs to `backend/tensor-logic/dist/`)
-2. **Deploy backend**: `cd backend/tensor-logic && cargo shuttle deploy`
+2. **Automatic deployment**: Pushing to `main` branch triggers GitHub Actions which automatically deploys to Replit
 
-The Rust backend serves the static frontend files. See [`docs/CI_CD.md`](./docs/CI_CD.md) for:
+Replit handles static site hosting directly. See [`docs/CI_CD.md`](./docs/CI_CD.md) and [`docs/REPLIT_SETUP.md`](./docs/REPLIT_SETUP.md) for:
 - GitHub Actions CI/CD setup
+- Replit project setup instructions
 - Automated deployment workflows
-- Custom domain configuration
-- DNS setup procedures
+- Troubleshooting deployment issues
 
 ### Build Timestamp
 

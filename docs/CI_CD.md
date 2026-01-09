@@ -11,8 +11,8 @@
   - [Step 3: Create GitHub Repository (if needed)](#step-3-create-github-repository-if-needed)
   - [Step 3.5: Set Up SSH Authentication (Optional but Recommended)](#step-35-set-up-ssh-authentication-optional-but-recommended)
   - [Step 4: Push and Test](#step-4-push-and-test)
-- [Deployment to Shuttle](#deployment-to-shuttle)
-  - [How Shuttle Connects to GitHub](#how-shuttle-connects-to-github)
+- [Deployment to Replit](#deployment-to-replit)
+  - [Overview](#overview)
   - [Prerequisites](#prerequisites)
   - [Initial Setup](#initial-setup)
   - [Setting Up GitHub Actions Deployment](#setting-up-github-actions-deployment)
@@ -48,9 +48,9 @@
 This guide provides step-by-step instructions for setting up:
 
 1. **GitHub Actions CI** - Automated testing on every push
-2. **Shuttle Deployment** - Deploy the static site to Shuttle.dev
+2. **Replit Deployment** - Deploy the static site to Replit.com
 
-**Key Principle:** CI runs tests automatically on every push. Deployment can be automatic via GitHub Actions (recommended) or manual via CLI - you control which approach to use.
+**Key Principle:** CI runs tests automatically on every push. Deployment is automatic via GitHub Actions when CI passes on the `main` branch.
 
 ---
 
@@ -86,14 +86,11 @@ This guide provides step-by-step instructions for setting up:
 │                                                              │
 │  7. Automatically runs (if configured):                    │
 │     - Builds frontend (npm run build)                      │
-│     - Deploys to Shuttle (shuttle deploy)                  │
-│  8. App is live at: https://your-app.shuttle.app          │
+│     - Deploys to Replit (via Deployments API)               │
+│  8. App is live at: https://your-app.replit.dev            │
 └─────────────────────────────────────────────────────────────┘
 
-Alternative: Manual Deployment
-────────────────────────────────
-After CI passes, you can also deploy manually:
-  cd backend && shuttle deploy
+Note: Manual deployment can be triggered from Replit's web interface if needed.
 ```
 
 ---
@@ -319,219 +316,50 @@ Using SSH with 1Password eliminates credential prompts and provides seamless aut
 
 ---
 
-## Deployment to Shuttle
+## Deployment to Replit
 
-### How Shuttle Connects to GitHub
+### Overview
 
-Shuttle offers **two ways** to deploy from GitHub:
+Replit deployment uses the **Replit Deployments API** to automatically deploy your app when you push to GitHub. The deployment is triggered via GitHub Actions after CI passes.
 
-1. **GitHub Integration (via Shuttle Console)** - Shuttle automatically pulls code from GitHub
-   - ✅ Simple setup through web console
-   - ✅ Automatic deployments on push (if enabled)
-   - ❌ **Not suitable for this project** - requires code to be ready to deploy without build steps
-   - ❌ This project needs `npm run build` before deployment
-
-2. **GitHub Actions** - Use CI workflow to build and deploy
-   - ✅ Perfect for projects that need build steps (like this one)
-   - ✅ Build happens in GitHub Actions, then deploys to Shuttle
-   - ✅ Full control over build process
-   - ✅ **Recommended for this project**
-
-**For this project:** Since we need to run `npm run build` before deployment, we'll use **GitHub Actions** to handle both building and deploying.
+**For detailed setup instructions, see:** [`docs/REPLIT_SETUP.md`](./REPLIT_SETUP.md)
 
 ### Prerequisites
 
-1. **Install Shuttle CLI (for initial setup and testing):**
-   ```bash
-   cargo install cargo-shuttle
-   ```
-
-2. **Login to Shuttle:**
-   ```bash
-   shuttle login
-   ```
-   This opens your browser to authenticate. Save your API key when prompted.
-
-3. **Get your Shuttle API Key:**
-   - After logging in, get your API key from: https://console.shuttle.dev/account/api-keys
-   - You'll need this for the GitHub Actions workflow
-
-4. **Create a project and get your Project ID:**
-   ```bash
-   # Create a new project
-   shuttle project create --name tensor-logic
-   
-   # Or list existing projects to see their IDs
-   shuttle project list
-   ```
-   - Project ID starts with `proj_` (e.g., `proj_0123456789`)
-   - You'll need this ID for the GitHub Actions workflow
+1. **Replit Account** - Core account or higher
+2. **Replit Project** - Created and connected to your GitHub repository
+3. **Replit Deployment** - Set up in your Replit project
+4. **Replit API Token** - Generated from your Replit account settings
+5. **Deployment ID** - Obtained from your Replit deployment settings
 
 ### Initial Setup
 
-<Note>
-**Chatbot Assistance:** The entire Initial Setup section (Steps 1-4) can be handled automatically by asking the chatbot/AI assistant to "do Initial Setup" or "set up the Shuttle backend". The chatbot will create the backend directory, initialize the Shuttle project, configure the Rust code to serve static files, and set up the necessary files.
-</Note>
+**Complete setup instructions:** See [`docs/REPLIT_SETUP.md`](./REPLIT_SETUP.md) for step-by-step instructions.
 
-Since this is a **static frontend project** (not a Rust backend), you need to create a minimal Rust backend that serves the built files:
-
-1. **Create a backend directory:**
-   ```bash
-   mkdir backend
-   cd backend
-   ```
-
-2. **Initialize Shuttle project:**
-   ```bash
-   shuttle init --name tensor-logic --template axum
-   ```
-
-3. **Modify to serve static files:**
-   - Update `src/main.rs` to serve files from `dist` (files are built directly to `backend/tensor-logic/dist/`)
-   - Configure routing for SPA (serve `index.html` for all routes)
-
-4. **Test deployment locally (optional):**
-   ```bash
-   # In project root
-   npm run build
-   cd backend/tensor-logic
-   shuttle deploy
-   ```
+**Quick summary:**
+1. Create a Replit project (HTML/CSS/JS or Static Site template)
+2. Connect the Replit project to your GitHub repository
+3. Set up a deployment in Replit (Autoscale or Reserved VM)
+4. Generate a Replit API token from account settings
+5. Get your deployment ID from deployment settings
+6. Add `REPLIT_DEPLOY_TOKEN` and `REPLIT_DEPLOYMENT_ID` secrets to GitHub
 
 ### Setting Up GitHub Actions Deployment
 
-<Note>
-**Chatbot Assistance:** Step 2 (updating the CI workflow) can be handled automatically by asking the chatbot/AI assistant to "set up GitHub Actions deployment" or "add deployment job to CI workflow". The chatbot will:
-- Read the current workflow file
-- Get the Shuttle project ID automatically using `shuttle project status` (if the project is linked)
-- Add the deployment job with the correct configuration
-- Update the workflow file with the correct project ID and paths
+The GitHub Actions workflow is already configured in `.github/workflows/ci.yml`. The deployment job:
 
-**Manual Step Required:** Step 1 (adding GitHub secrets) must be done manually through the GitHub web interface, as it requires your Shuttle API key and GitHub UI access. The chatbot cannot access GitHub's secret management UI.
-</Note>
+1. **Builds the frontend** (`npm run build`)
+2. **Triggers Replit deployment** via the Deployments API
+3. **Only runs on `main` branch** after CI passes
 
-To deploy automatically from GitHub Actions:
+**Required GitHub Secrets:**
+- `REPLIT_DEPLOY_TOKEN` - Your Replit API token
+- `REPLIT_DEPLOYMENT_ID` - Your Replit deployment ID
 
-1. **Add Shuttle secrets to GitHub (Manual - Required):**
-   - Go to: `https://github.com/MrBesterTester/tensor-logic/settings/secrets/actions`
-   - Click "New repository secret"
-   - Add `SHUTTLE_API_KEY` with your API key from Shuttle Console
-   - Add any other secrets your project needs
-   
-   **Note:** This step cannot be automated and must be done through the GitHub web interface.
-
-2. **Update your CI workflow** to include deployment:
-
-   **File:** `.github/workflows/ci.yml`
-
-   Add a deployment job after the build job:
-
-   ```yaml
-   name: CI
-
-   on:
-     push:
-       branches: [ main, master ]
-     pull_request:
-       branches: [ main, master ]
-
-   jobs:
-     build-and-test:
-       runs-on: ubuntu-latest
-       
-       steps:
-         - name: Checkout code
-           uses: actions/checkout@v4
-           
-         - name: Setup Node.js
-           uses: actions/setup-node@v4
-           with:
-             node-version: '20'
-             cache: 'npm'
-             
-         - name: Install dependencies
-           run: npm ci
-           
-         - name: Run linter
-           run: npm run lint
-           
-         - name: Run type check
-           run: npm run typecheck
-           
-         - name: Type check scripts
-           run: npm run typecheck:scripts
-           
-         - name: Build application
-           run: npm run build
-           
-         - name: Build scripts
-           run: npm run build:scripts
-           
-         - name: Upload build artifacts
-           uses: actions/upload-artifact@v4
-           with:
-             name: dist
-             path: backend/tensor-logic/dist/
-             retention-days: 7
-
-     deploy:
-       needs: build-and-test
-       runs-on: ubuntu-latest
-       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-       
-       steps:
-         - name: Checkout code
-           uses: actions/checkout@v4
-           
-         - name: Setup Rust
-           uses: actions-rs/toolchain@v1
-           with:
-             toolchain: stable
-             
-         - name: Install cargo-shuttle
-           run: cargo install cargo-shuttle
-           
-         - name: Build frontend
-           uses: actions/setup-node@v4
-           with:
-             node-version: '20'
-             cache: 'npm'
-           run: |
-             npm ci
-             npm run build
-             
-         - name: Deploy to Shuttle
-           uses: shuttle-hq/deploy-action@v2
-           with:
-             shuttle-api-key: ${{ secrets.SHUTTLE_API_KEY }}
-             project-id: proj_YOUR_PROJECT_ID_HERE
-             working-directory: backend/tensor-logic
-   ```
-
-   **Important:** Replace `proj_YOUR_PROJECT_ID_HERE` with your actual Shuttle project ID.
-
-3. **Alternative: Use Shuttle Deploy Action (simpler):**
-
-   If you prefer, you can use the official Shuttle deploy action which handles Rust setup:
-
-   ```yaml
-   - name: Build frontend
-     uses: actions/setup-node@v4
-     with:
-       node-version: '20'
-       cache: 'npm'
-     run: |
-       npm ci
-       npm run build
-       
-   - name: Deploy to Shuttle
-     uses: shuttle-hq/deploy-action@v2
-     with:
-       shuttle-api-key: ${{ secrets.SHUTTLE_API_KEY }}
-       project-id: proj_YOUR_PROJECT_ID_HERE
-       working-directory: backend/tensor-logic
-       extra-args: "--allow-dirty"
-   ```
+**To add secrets:**
+1. Go to: `https://github.com/MrBesterTester/tensor-logic/settings/secrets/actions`
+2. Click "New repository secret"
+3. Add both secrets as described in [`docs/REPLIT_SETUP.md`](./REPLIT_SETUP.md)
 
 ### Deployment Process
 
@@ -543,33 +371,15 @@ To deploy automatically from GitHub Actions:
 4. **Deployment job:**
    - Checks out code
    - Builds frontend (`npm run build`)
-   - Deploys to Shuttle using `shuttle deploy`
-5. **Your app is live** at your Shuttle URL
-
-**Manual deployment (for testing):**
-
-If you want to deploy manually from your local machine:
-
-```bash
-# 1. Ensure CI passed (check GitHub Actions)
-#    Go to: https://github.com/MrBesterTester/tensor-logic/actions
-#    Verify: Latest run shows green ✅
-
-# 2. Build locally
-npm run build
-
-# 3. Deploy to Shuttle
-cd backend
-shuttle deploy
-
-# 4. Verify deployment
-#    Check the URL provided by Shuttle
-```
+   - Calls Replit Deployments API to trigger deployment
+5. **Replit deploys your app** → Your app is live on Replit
 
 **Timeline:**
 - CI runs: ~2-3 minutes after push
-- Deployment (via GitHub Actions): ~2-5 minutes after CI passes
-- Manual deployment: ~2-5 minutes after `shuttle deploy`
+- Deployment (via GitHub Actions): ~1-2 minutes after CI passes
+- Replit deployment: Typically completes within a few minutes
+
+**Note:** Replit will pull the latest code from your connected GitHub repository and deploy it automatically when triggered by the API call.
 
 ---
 
@@ -666,14 +476,22 @@ git push
 ### Deployment Fails
 
 **Common issues:**
-1. **Shuttle not logged in**
-   - Solution: Run `shuttle login` again
+1. **Replit API authentication fails**
+   - Solution: Verify `REPLIT_DEPLOY_TOKEN` secret is correctly set in GitHub
+   - Ensure the token hasn't expired - regenerate if needed
 
-2. **Build artifacts missing**
-   - Solution: Ensure `npm run build` runs before `shuttle deploy`
+2. **Deployment ID not found**
+   - Solution: Verify `REPLIT_DEPLOYMENT_ID` secret matches your actual deployment ID
+   - Check the deployment ID in Replit deployment settings
 
-3. **Wrong directory**
-   - Solution: Ensure you're in the correct directory when deploying
+3. **Build artifacts missing**
+   - Solution: Ensure `npm run build` runs before deployment step
+   - Verify the build output directory exists
+
+4. **Replit deployment doesn't update**
+   - Solution: Check that Replit is connected to the correct GitHub branch
+   - Verify the deployment is configured to pull from GitHub
+   - Try manually triggering a deployment in Replit to test
 
 ### Secrets Not Working
 
@@ -823,6 +641,8 @@ node scripts/dist/verify-domain-setup.js tensor-logic.samkirk.com tensor-logic-n
 ---
 
 ## Custom Domain Configuration
+
+> **Note:** This section is for **Shuttle deployment only**. If you're using Replit deployment, custom domain configuration should be handled through Replit's domain settings. See [Replit documentation](https://docs.replit.com/hosting/deployments) for details.
 
 ### Overview
 
