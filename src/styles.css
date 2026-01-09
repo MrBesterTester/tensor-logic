@@ -780,6 +780,28 @@ a:hover {
     max-height: none;
   }
   
+  /* Hide sidebar when an example is active on mobile */
+  .app-container.example-active .sidebar {
+    display: none !important;
+  }
+  
+  /* Adjust steps header to full width on mobile when example is active */
+  .app-container.example-active .steps-header {
+    left: 0;
+  }
+  
+  /* Adjust header padding on mobile */
+  .app-container.example-active .steps-header-top,
+  .app-container.example-active .steps-header-bottom {
+    padding-left: var(--space-lg);
+    padding-right: var(--space-lg);
+  }
+  
+  /* Adjust main content padding on mobile when example is active */
+  .app-container.example-active .main-content {
+    padding: var(--space-lg);
+  }
+  
   .step-content {
     grid-template-columns: 1fr;
   }

@@ -101,7 +101,13 @@ function escapeHtml(text: string): string {
 function renderExample(example: Example): void {
   const result = example.run();
   const mainContent = document.getElementById('main-content');
+  const appContainer = document.querySelector('.app-container');
   if (!mainContent) return;
+  
+  // Add class to app-container to indicate an example is active (for mobile styling)
+  if (appContainer) {
+    appContainer.classList.add('example-active');
+  }
 
   const categoryColors: Record<string, string> = {
     symbolic: '#ff6b6b',
@@ -478,7 +484,13 @@ window.testStepScroll = (stepIndex: number) => {
 
 function renderIntro(): void {
   const mainContent = document.getElementById('main-content');
+  const appContainer = document.querySelector('.app-container');
   if (!mainContent) return;
+  
+  // Remove class from app-container when showing intro (show sidebar on mobile)
+  if (appContainer) {
+    appContainer.classList.remove('example-active');
+  }
 
   mainContent.innerHTML = `
     <article class="intro-container">
